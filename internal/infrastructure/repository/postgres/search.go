@@ -2,19 +2,19 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	"github.com/dostonshernazarov/mini-twitter/internal/entity"
 	"github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/postgres/repo"
+	"github.com/dostonshernazarov/mini-twitter/internal/pkg/postgres"
 	"github.com/lib/pq"
 )
 
 type searchRepo struct {
-	db *sql.DB
+	db *postgres.PostgresDB
 }
 
-func NewSearchRepo(db *sql.DB) repo.SearchStorageI {
+func NewSearchRepo(db *postgres.PostgresDB) repo.SearchStorageI {
 	return &searchRepo{
 		db: db,
 	}

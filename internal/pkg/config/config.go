@@ -11,7 +11,14 @@ type Config struct {
 	HTTPHost    string
 	HTTPPort    int
 	CtxTimeout  string
-	GinMode     string // debug, test, release
+	Server      struct {
+		Host         string
+		Port         string
+		ReadTimeout  string
+		WriteTimeout string
+		IdleTimeout  string
+	}
+	GinMode string // debug, test, release
 
 	PostgresHost     string
 	PostgresPort     string

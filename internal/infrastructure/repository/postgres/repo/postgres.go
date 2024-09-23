@@ -9,7 +9,7 @@ type UserStorageI interface {
 	UniqueUsername(ctx context.Context, username string) (bool, error)
 	UniqueEmail(ctx context.Context, email string) (bool, error)
 	Create(ctx context.Context, user entity.CreateUserRequest) (entity.CreateUserResponse, error)
-	Update(ctx context.Context, user entity.UpdateUserRequest) (entity.UpdateUserResponse, error)
+	Update(ctx context.Context, user entity.UpdateUserRequest) error
 	UpdatePasswd(ctx context.Context, id int, passwd string) error
 	UploadImage(ctx context.Context, id int, url string) error
 	Delete(ctx context.Context, id int) error

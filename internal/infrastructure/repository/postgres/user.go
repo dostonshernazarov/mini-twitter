@@ -3,291 +3,328 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/dostonshernazarov/mini-twitter/internal/entity"
 	"github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/postgres/repo"
+	"github.com/dostonshernazarov/mini-twitter/internal/pkg/postgres"
+	"github.com/jackc/pgx"
 	"github.com/spf13/cast"
 )
 
 type userRepo struct {
-	db *sql.DB
+	db        *postgres.PostgresDB
+	tableName string
 }
 
-func NewUserRepo(db *sql.DB) repo.UserStorageI {
+func NewUserRepo(db *postgres.PostgresDB) repo.UserStorageI {
 	return &userRepo{
-		db: db,
+		db:        db,
+		tableName: "users",
 	}
 }
 
-// UniqueUsername check have or no username in users data
 func (u *userRepo) UniqueUsername(ctx context.Context, username string) (bool, error) {
-	query := `SELECT COUNT(*) FROM users WHERE username = $1 AND deleted_at IS NULL`
+	qrBuilder := u.db.Sq.Builder.Select("COUNT(*)")
+	qrBuilder = qrBuilder.From(u.tableName)
+	qrBuilder = qrBuilder.Where(u.db.Sq.Equal("username", username))
+	qrBuilder = qrBuilder.Where("deleted_at IS NULL")
 
 	var count int
-	if err := u.db.QueryRowContext(ctx, query, username).Scan(&count); err != nil {
+	query, args, err := qrBuilder.ToSql()
+	if err != nil {
 		return false, err
 	}
 
-	return count > 0, nil
-}
-
-// UniqueEmail check have or no email in users data
-func (u *userRepo) UniqueEmail(ctx context.Context, email string) (bool, error) {
-	query := `SELECT COUNT(*) FROM users WHERE email = $1 AND deleted_at IS NULL`
-
-	var count int
-	if err := u.db.QueryRowContext(ctx, query, email).Scan(&count); err != nil {
-		return false, err
-	}
-
-	return count > 0, nil
-}
-
-// Create method for creating a new user
-func (u *userRepo) Create(ctx context.Context, user entity.CreateUserRequest) (entity.CreateUserResponse, error) {
-	query := `
-	INSERT INTO users (
-	    name,
-	    username,
-	    email,
-	    password,
-	    role
-	) VALUES ($1, $2, $3, $4, $5)
-	RETURNING
-		id,
-		name,
-		username,
-		email,
-		role
-	`
-
-	var response entity.CreateUserResponse
-	err := u.db.QueryRowContext(
-		ctx,
-		query,
-		user.Name,
-		user.Username,
-		user.Email,
-		user.Password,
-		user.Role,
-	).Scan(
-		&response.ID,
-		&response.Name,
-		&response.Username,
-		&response.Email,
-		&response.Role,
+	err = u.db.QueryRow(ctx, query, args...).Scan(
+		&count,
 	)
 
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
+func (u *userRepo) UniqueEmail(ctx context.Context, email string) (bool, error) {
+	qrBuilder := u.db.Sq.Builder.Select("COUNT(*)")
+	qrBuilder = qrBuilder.From(u.tableName)
+	qrBuilder = qrBuilder.Where(u.db.Sq.Equal("email", email))
+	qrBuilder = qrBuilder.Where("deleted_at IS NULL")
+
+	var count int
+	query, args, err := qrBuilder.ToSql()
+	if err != nil {
+		return false, err
+	}
+
+	err = u.db.QueryRow(ctx, query, args...).Scan(
+		&count,
+	)
+
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
+func (u *userRepo) Create(ctx context.Context, user entity.CreateUserRequest) (entity.CreateUserResponse, error) {
+	clauses := map[string]interface{}{
+		"id":         user.ID,
+		"name":       user.Name,
+		"username":   user.Username,
+		"email":      user.Email,
+		"password":   user.Password,
+		"role":       user.Role,
+		"created_at": user.CreatedAt,
+		"updated_at": user.UpdatedAt,
+	}
+
+	queryBuilder := u.db.Sq.Builder.Insert(u.tableName)
+	queryBuilder = queryBuilder.SetMap(clauses)
+
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return entity.CreateUserResponse{}, err
 	}
 
-	return response, nil
-}
-
-// Update method for updating user data
-func (u *userRepo) Update(ctx context.Context, user entity.UpdateUserRequest) (entity.UpdateUserResponse, error) {
-	query := `
-	UPDATE
-		users
-	SET
-	    name = $1,
-	    bio = $2,
-	    username = $3,
-	    updated_at = NOW()
-	WHERE
-	    id = $4
-		AND deleted_at IS NULL
-	RETURNING
-		id,
-		name,
-		username,
-	    email,
-		bio,
-	    role,
-		profile_picture
-	`
-
-	var response entity.UpdateUserResponse
-	err := u.db.QueryRowContext(
-		ctx,
-		query,
-		user.Name,
-		user.Bio,
-		user.Username,
-		user.ID,
-	).Scan(
-		&response.ID,
-		&response.Name,
-		&response.Username,
-		&response.Email,
-		&response.Bio,
-		&response.Role,
-		&response.ProfilePicture,
-	)
-
+	result, err := u.db.Exec(ctx, query, args...)
 	if err != nil {
-		return entity.UpdateUserResponse{}, err
+		return entity.CreateUserResponse{}, err
 	}
 
-	return response, nil
+	if result.RowsAffected() == 0 {
+		return entity.CreateUserResponse{}, pgx.ErrNoRows
+	}
+
+	return entity.CreateUserResponse{
+		ID:             user.ID,
+		Name:           user.Name,
+		Username:       user.Username,
+		Email:          user.Email,
+		Bio:            new(string),
+		Role:           user.Role,
+		ProfilePicture: new(string),
+	}, nil
+
 }
 
-// UpdatePasswd method for updating user password with id
+func (u *userRepo) Update(ctx context.Context, user entity.UpdateUserRequest) error {
+
+	clauses := map[string]interface{}{
+		"name":     user.Name,
+		"bio":      user.Bio,
+		"username": user.Username,
+	}
+
+	queryBuilder := u.db.Sq.Builder.Update(u.tableName)
+	queryBuilder = queryBuilder.SetMap(clauses)
+	queryBuilder = queryBuilder.Where("deleted_at IS NULL")
+	queryBuilder = queryBuilder.Where(u.db.Sq.Equal("id", user.ID))
+
+	query, args, err := queryBuilder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	result, err := u.db.Exec(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+
+	return nil
+}
+
 func (u *userRepo) UpdatePasswd(ctx context.Context, id int, passwd string) error {
-	query := `UPDATE users SET password = $1, updated_at = NOW() WHERE id = $2 AND deleted_at IS NULL`
+	clauses := map[string]interface{}{
+		"password": passwd,
+	}
 
-	result, err := u.db.ExecContext(ctx, query, passwd, id)
+	queryBuilder := u.db.Sq.Builder.Update(u.tableName)
+	queryBuilder = queryBuilder.SetMap(clauses)
+	queryBuilder = queryBuilder.Where("deleted_at IS NULL")
+	queryBuilder = queryBuilder.Where(u.db.Sq.Equal("id", id))
+
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return err
 	}
 
-	n, err := result.RowsAffected()
+	result, err := u.db.Exec(ctx, query, args...)
 	if err != nil {
 		return err
 	}
 
-	if n == 0 {
-		return sql.ErrNoRows
+	if result.RowsAffected() == 0 {
+		return pgx.ErrNoRows
 	}
 
 	return nil
 }
 
 func (u *userRepo) UploadImage(ctx context.Context, id int, url string) error {
-	query := `UPDATE users SET profile_picture = $1, updated_at = NOW() WHERE id = $2 AND deleted_at IS NULL`
+	clauses := map[string]interface{}{
+		"profile_picture": url,
+	}
 
-	result, err := u.db.ExecContext(ctx, query, url, id)
+	queryBuilder := u.db.Sq.Builder.Update(u.tableName)
+	queryBuilder = queryBuilder.SetMap(clauses)
+	queryBuilder = queryBuilder.Where("deleted_at IS NULL")
+	queryBuilder = queryBuilder.Where(u.db.Sq.Equal("id", id))
+
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return err
 	}
 
-	n, err := result.RowsAffected()
+	result, err := u.db.Exec(ctx, query, args...)
 	if err != nil {
 		return err
 	}
 
-	if n == 0 {
-		return sql.ErrNoRows
+	if result.RowsAffected() == 0 {
+		return pgx.ErrNoRows
 	}
 
 	return nil
 }
 
-// Delete method for deleting user with id
 func (u *userRepo) Delete(ctx context.Context, id int) error {
-	query := `UPDATE users SET deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL`
+	queryBuilder := u.db.Sq.Builder.Update(u.tableName)
+	queryBuilder = queryBuilder.Set("deleted_at", "NOW()")
+	queryBuilder = queryBuilder.Where("deleted_at IS NULL")
+	queryBuilder = queryBuilder.Where(u.db.Sq.Equal("id", id))
 
-	result, err := u.db.ExecContext(ctx, query, id)
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return err
 	}
 
-	n, err := result.RowsAffected()
+	result, err := u.db.Exec(ctx, query, args...)
 	if err != nil {
 		return err
 	}
 
-	if n == 0 {
-		return sql.ErrNoRows
+	if result.RowsAffected() == 0 {
+		return pgx.ErrNoRows
 	}
 
 	return nil
 }
 
-// Get method for getting user with id or email
 func (u *userRepo) Get(ctx context.Context, field map[string]interface{}) (entity.GetUserResponse, error) {
-	query := `
-	SELECT
-		u.id,
-		u.name,
-		u.username,
-		u.email,
-		u.bio,
-		u.role,
-		u.password,
-		u.profile_picture,
-		(SELECT COUNT(*) FROM follows WHERE user_id = u.id AND deleted_at IS NULL),
-		(SELECT COUNT(*) FROM follows WHERE following_id = u.id AND deleted_at is null)
-	FROM
-	    users AS u
-	WHERE
-	    u.deleted_at IS NULL
-	`
+	var (
+		result   entity.GetUserResponse
+		NullBio  sql.NullString
+		NulPhoto sql.NullString
+	)
+	queryBuilder := u.db.Sq.Builder.Select(
+		"id, " +
+			"name, " +
+			"username, " +
+			"email, " +
+			"bio, " +
+			"role, " +
+			"password, " +
+			"profile_picture, " +
+			"(SELECT COUNT(*) FROM follows WHERE user_id = id AND deleted_at IS NULL), " +
+			"(SELECT COUNT(*) FROM follows WHERE following_id = id AND deleted_at is null)")
 
+	queryBuilder = queryBuilder.From(u.tableName)
+	queryBuilder = queryBuilder.Where("deleted_at IS NULL")
 	if field["id"] != nil {
-		query += fmt.Sprintf(" AND u.id = '%d'", cast.ToInt(field["id"]))
+		queryBuilder = queryBuilder.Where("id", cast.ToString(field["id"]))
 	} else if field["username"] != nil {
-		query += fmt.Sprintf(" AND u.username = '%s'", cast.ToString(field["username"]))
+		queryBuilder = queryBuilder.Where("username", cast.ToString(field["username"]))
 	} else if field["email"] != nil {
-		query += fmt.Sprintf(" AND u.email = '%s'", cast.ToString(field["email"]))
+		queryBuilder = queryBuilder.Where("email", cast.ToString(field["email"]))
 	}
-	fmt.Println(query)
 
-	var response entity.GetUserResponse
-	err := u.db.QueryRowContext(ctx, query).Scan(
-		&response.ID,
-		&response.Name,
-		&response.Username,
-		&response.Email,
-		&response.Bio,
-		&response.Role,
-		&response.Password,
-		&response.ProfilePicture,
-		&response.FollowingCount,
-		&response.FollowersCount,
+	selectQuery, selectArgs, err := queryBuilder.ToSql()
+	if err != nil {
+		return entity.GetUserResponse{}, err
+	}
+
+	err = u.db.QueryRow(ctx, selectQuery, selectArgs...).Scan(
+		&result.ID,
+		&result.Name,
+		&result.Username,
+		&result.Email,
+		&NullBio,
+		&result.Role,
+		&result.Password,
+		&NulPhoto,
+		&result.FollowingCount,
+		&result.FollowersCount,
 	)
 
 	if err != nil {
 		return entity.GetUserResponse{}, err
 	}
 
-	return response, nil
+	if NulPhoto.Valid {
+		result.ProfilePicture = &NulPhoto.String
+	}
+
+	if NullBio.Valid {
+		result.Bio = &NullBio.String
+	}
+
+	return result, nil
 }
 
-// List method for getting list users and count with filter fields
 func (u *userRepo) List(ctx context.Context, filter entity.Filter) (entity.ListUser, error) {
-	query := `
-	SELECT
-		u.id,
-		u.name,
-		u.username,
-		u.email,
-		u.bio,
-		u.role,
-		u.profile_picture,
-		(SELECT COUNT(*) FROM follows WHERE user_id = u.id AND deleted_at IS NULL),
-		(SELECT COUNT(*) FROM follows WHERE following_id = u.id AND deleted_at is null)
-	FROM
-	    users AS u
-	WHERE
-	    u.deleted_at IS NULL
-		AND u.role = 'user'
-	LIMIT $1
-	OFFSET $2
-	`
+	queryBuilder := u.db.Sq.Builder.Select(
+		"id, " +
+			"name, " +
+			"username, " +
+			"email, " +
+			"bio, " +
+			"role, " +
+			"password, " +
+			"profile_picture, " +
+			"(SELECT COUNT(*) FROM follows WHERE user_id = id AND deleted_at IS NULL), " +
+			"(SELECT COUNT(*) FROM follows WHERE following_id = id AND deleted_at is null)")
+
+	queryBuilder = queryBuilder.From(u.tableName)
+	queryBuilder = queryBuilder.Where("deleted_at IS NULL")
+	queryBuilder = queryBuilder.Where("role", "user")
+	queryBuilder = queryBuilder.Limit(uint64(filter.Limit))
+	queryBuilder = queryBuilder.Offset(uint64(filter.Limit) * (uint64(filter.Page) - 1))
 
 	var response entity.ListUser
 
-	offset := filter.Limit * (filter.Page - 1)
-	rows, err := u.db.QueryContext(ctx, query, filter.Limit, offset)
+	selectQuery, selectArgs, err := queryBuilder.ToSql()
+	if err != nil {
+		return entity.ListUser{}, err
+	}
+
+	rows, err := u.db.Query(ctx, selectQuery, selectArgs...)
 	if err != nil {
 		return entity.ListUser{}, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var user entity.GetUserResponse
+		var (
+			user     entity.GetUserResponse
+			NullBio  sql.NullString
+			NulPhoto sql.NullString
+		)
 
 		err := rows.Scan(
 			&user.ID,
 			&user.Name,
 			&user.Username,
 			&user.Email,
-			&user.Bio,
+			&NullBio,
 			&user.Role,
-			&user.ProfilePicture,
+			&NulPhoto,
 			&user.FollowingCount,
 			&user.FollowersCount,
 		)
@@ -296,12 +333,20 @@ func (u *userRepo) List(ctx context.Context, filter entity.Filter) (entity.ListU
 			return entity.ListUser{}, err
 		}
 
-		response.Users = append(response.Users, user)
-	}
+		if NulPhoto.Valid {
+			user.ProfilePicture = &NulPhoto.String
+		}
 
-	countQuery := `SELECT COUNT(*) FROM users WHERE deleted_at IS NULL AND role = 'user'`
-	if err := u.db.QueryRowContext(ctx, countQuery).Scan(&response.Count); err != nil {
-		return entity.ListUser{}, err
+		if NullBio.Valid {
+			user.Bio = &NullBio.String
+		}
+
+		response.Users = append(response.Users, user)
+
+		countBuilder := u.db.Sq.Builder.Select("COUNT(*)")
+		countBuilder = countBuilder.From(u.tableName)
+		countBuilder = countBuilder.Where("deleted_at IS NULL")
+		countBuilder = countBuilder.Where("role", "user")
 	}
 
 	return response, nil

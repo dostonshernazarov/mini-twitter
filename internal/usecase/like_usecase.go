@@ -1,8 +1,10 @@
 package usecase
 
 import (
+	"context"
 	"time"
 
+	"github.com/dostonshernazarov/mini-twitter/internal/entity"
 	"github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/postgres/repo"
 )
 
@@ -16,4 +18,8 @@ func NewLikeService(timeout time.Duration, repository repo.LikeStorageI) Like {
 		ctxTimeout: timeout,
 		repo:       repository,
 	}
+}
+
+func (l *likeService) Like(ctx context.Context, like entity.LikeAction) (bool, error) {
+	return l.repo.Like(ctx, like)
 }

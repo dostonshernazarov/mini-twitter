@@ -6,20 +6,20 @@ import (
 
 	"github.com/dostonshernazarov/mini-twitter/internal/entity"
 	"github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/postgres/repo"
+	"github.com/dostonshernazarov/mini-twitter/internal/pkg/postgres"
 	"github.com/lib/pq"
 )
 
 type tweetRepo struct {
-	db *sql.DB
+	db *postgres.PostgresDB
 }
 
-func NewTweetRepo(db *sql.DB) repo.TweetStorageI {
+func NewTweetRepo(db *postgres.PostgresDB) repo.TweetStorageI {
 	return &tweetRepo{
 		db: db,
 	}
 }
 
-// CreateTweet method for creating a new tweet with image urls
 func (t *tweetRepo) CreateTweet(ctx context.Context, tweet entity.CreateTwitRequest) (entity.CreateTweetResponse, error) {
 	tx, err := t.db.Begin()
 	if err != nil {
@@ -84,7 +84,6 @@ func (t *tweetRepo) CreateTweet(ctx context.Context, tweet entity.CreateTwitRequ
 	return response, nil
 }
 
-// UpdateTweet method for updating no reposted tweet content with id
 func (t *tweetRepo) UpdateTweet(ctx context.Context, tweet entity.UpdateTweetRequest) (entity.UpdateTweetResponse, error) {
 	query := `
 	UPDATE
@@ -121,7 +120,6 @@ func (t *tweetRepo) UpdateTweet(ctx context.Context, tweet entity.UpdateTweetReq
 	return response, nil
 }
 
-// DeleteTweet method for deleting a tweet with id
 func (t *tweetRepo) DeleteTweet(ctx context.Context, id int) error {
 	query := `UPDATE tweets SET deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL`
 
@@ -142,7 +140,6 @@ func (t *tweetRepo) DeleteTweet(ctx context.Context, id int) error {
 	return nil
 }
 
-// GetTweet for getting a tweet with files
 func (t *tweetRepo) GetTweet(ctx context.Context, id int) (entity.GetTweetResponse, error) {
 	query := `
 	SELECT
@@ -177,7 +174,6 @@ func (t *tweetRepo) GetTweet(ctx context.Context, id int) (entity.GetTweetRespon
 	return response, nil
 }
 
-// ListTweets method for getting list tweets with page and limit
 func (t *tweetRepo) ListTweets(ctx context.Context, filter entity.Filter) (entity.ListTweetsResponse, error) {
 	query := `
 	SELECT
@@ -231,7 +227,6 @@ func (t *tweetRepo) ListTweets(ctx context.Context, filter entity.Filter) (entit
 	return response, nil
 }
 
-// UserTweets method for getting list tweets of one user with user_id
 func (t *tweetRepo) UserTweets(ctx context.Context, usrID int) (entity.ListTweetsResponse, error) {
 	query := `
 	SELECT

@@ -2,23 +2,22 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/dostonshernazarov/mini-twitter/internal/entity"
 	"github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/postgres/repo"
+	"github.com/dostonshernazarov/mini-twitter/internal/pkg/postgres"
 )
 
 type likeRepo struct {
-	db *sql.DB
+	db *postgres.PostgresDB
 }
 
-func NewLikeRepo(db *sql.DB) repo.LikeStorageI {
+func NewLikeRepo(db *postgres.PostgresDB) repo.LikeStorageI {
 	return &likeRepo{
 		db: db,
 	}
 }
 
-// Like method for liking or unliking tweet
 func (l *likeRepo) Like(ctx context.Context, like entity.LikeAction) (bool, error) {
 	countQuery := `SELECT COUNT(*) FROM likes WHERE user_id = $1 AND tweet_id = $2`
 

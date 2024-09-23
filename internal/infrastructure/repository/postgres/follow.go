@@ -2,23 +2,22 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/dostonshernazarov/mini-twitter/internal/entity"
 	"github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/postgres/repo"
+	"github.com/dostonshernazarov/mini-twitter/internal/pkg/postgres"
 )
 
 type followRepo struct {
-	db *sql.DB
+	db *postgres.PostgresDB
 }
 
-func NewFollowRepo(db *sql.DB) repo.FollowStorageI {
+func NewFollowRepo(db *postgres.PostgresDB) repo.FollowStorageI {
 	return &followRepo{
 		db: db,
 	}
 }
 
-// Follow method for following or unfollowing to other users
 func (f *followRepo) Follow(ctx context.Context, follow entity.FollowAction) (bool, error) {
 	countQuery := `SELECT COUNT(*) FROM follows WHERE user_id = $1 AND following_id = $2`
 
@@ -48,7 +47,6 @@ func (f *followRepo) Follow(ctx context.Context, follow entity.FollowAction) (bo
 	}
 }
 
-// GetFollowings method for getting user followings
 func (f *followRepo) GetFollowings(ctx context.Context, id int) (entity.ListUser, error) {
 	query := `
 	SELECT
@@ -101,7 +99,6 @@ func (f *followRepo) GetFollowings(ctx context.Context, id int) (entity.ListUser
 	return response, nil
 }
 
-// GetFollowers method for getting user followers
 func (f *followRepo) GetFollowers(ctx context.Context, id int) (entity.ListUser, error) {
 	query := `
 	SELECT
