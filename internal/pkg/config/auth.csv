@@ -1,0 +1,41 @@
+p, unauthorized, /v1/swagger/*, GET
+p, unauthorized, /v1/swagger/*, POST
+
+p, unauthorized, /v1/auth/sign-up, POST
+p, unauthorized, /v1/auth/verify-sign-up, POST
+p, unauthorized, /v1/auth/login, POST
+p, unauthorized, /v1/auth/forgot-password/{email}, POST
+p, unauthorized, /v1/auth/verify-forgot-password, POST
+p, unauthorized, /v1/auth/reset-password, PUT
+p, unauthorized, /v1/auth/get-token/{refresh}, GET
+p, unauthorized, /v1/auth/unique-email/{email}, GET
+p, unauthorized, /v1/auth/unique-username/{username}, GET
+
+p, unauthorized, /v1/users, GET
+p, unauthorized, /v1/user/{id}, GET
+p, unauthorized, /v1/tweet/{id}, GET
+p, unauthorized, /v1/tweets/{id}, GET
+p, unauthorized, /v1/search/{data}, GET
+
+p, user, /v1/users, GET
+p, user, /v1/user, GET
+p, user, /v1/user/{id}, DELETE
+p, user, /v1/user, PUT
+p, user, /v1/user/upload-photo, POST
+p, user, /v1/tweet, POST
+p, user, /v1/tweet, PUT
+p, user, /v1/tweet/{id}, DELETE
+p, user, /v1/tweet/{id}, GET
+p, user, /v1/tweets, GET
+p, user, /v1/tweets/{id}, GET
+p, user, /v1/tweet/upload, POST
+p, user, /v1/like, POST
+p, user, /v1/follow, POST
+p, user, /v1/following/{id}, GET
+p, user, /v1/followers/{id}, GET
+p, user, /v1/search/{data}, GET
+
+p, admin, /v1/*, POST
+p, admin, /v1/*, PUT
+p, admin, /v1/*, DELETE
+p, admin, /v1/*, GET
