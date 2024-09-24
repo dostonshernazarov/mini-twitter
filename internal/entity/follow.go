@@ -1,6 +1,6 @@
 package entity
 
 type FollowAction struct {
-	UserID      int `json:"-"`
-	FollowingID int `json:"following_id"`
+	UserID      string `json:"-"`
+	FollowingID string `json:"following_id"`
 }

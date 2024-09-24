@@ -2,7 +2,7 @@ package entity
 
 import "time"
 
-type CreateTwitRequest struct {
+type CreateTweetRequest struct {
 	ID            string    `json:"id"`
 	UserID        int       `json:"user_id"`
 	ParentTweetID *int      `json:"parent_tweet_id"`
@@ -23,7 +23,7 @@ type CreateTweetResponse struct {
 }
 
 type UpdateTweetRequest struct {
-	ID      int    `json:"id"`
+	ID      string `json:"id"`
 	Content string `json:"content"`
 }
 
@@ -36,9 +36,9 @@ type UpdateTweetResponse struct {
 }
 
 type GetTweetResponse struct {
-	ID            int      `json:"id"`
-	UserID        int      `json:"user_id"`
-	ParentTweetID *int     `json:"parent_tweet_id"`
+	ID            string   `json:"id"`
+	UserID        string   `json:"user_id"`
+	ParentTweetID *string  `json:"parent_tweet_id"`
 	Content       *string  `json:"content"`
 	URLs          []string `json:"urls"`
 }

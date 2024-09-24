@@ -77,6 +77,7 @@ func (u *userRepo) Create(ctx context.Context, user entity.CreateUserRequest) (e
 		"email":      user.Email,
 		"password":   user.Password,
 		"role":       user.Role,
+		"refresh":    user.Refresh,
 		"created_at": user.CreatedAt,
 		"updated_at": user.UpdatedAt,
 	}
@@ -140,7 +141,7 @@ func (u *userRepo) Update(ctx context.Context, user entity.UpdateUserRequest) er
 	return nil
 }
 
-func (u *userRepo) UpdatePasswd(ctx context.Context, id int, passwd string) error {
+func (u *userRepo) UpdatePasswd(ctx context.Context, id string, passwd string) error {
 	clauses := map[string]interface{}{
 		"password": passwd,
 	}
@@ -167,7 +168,7 @@ func (u *userRepo) UpdatePasswd(ctx context.Context, id int, passwd string) erro
 	return nil
 }
 
-func (u *userRepo) UploadImage(ctx context.Context, id int, url string) error {
+func (u *userRepo) UploadImage(ctx context.Context, id string, url string) error {
 	clauses := map[string]interface{}{
 		"profile_picture": url,
 	}
@@ -194,7 +195,7 @@ func (u *userRepo) UploadImage(ctx context.Context, id int, url string) error {
 	return nil
 }
 
-func (u *userRepo) Delete(ctx context.Context, id int) error {
+func (u *userRepo) Delete(ctx context.Context, id string) error {
 	queryBuilder := u.db.Sq.Builder.Update(u.tableName)
 	queryBuilder = queryBuilder.Set("deleted_at", "NOW()")
 	queryBuilder = queryBuilder.Where("deleted_at IS NULL")
@@ -238,11 +239,11 @@ func (u *userRepo) Get(ctx context.Context, field map[string]interface{}) (entit
 	queryBuilder = queryBuilder.From(u.tableName)
 	queryBuilder = queryBuilder.Where("deleted_at IS NULL")
 	if field["id"] != nil {
-		queryBuilder = queryBuilder.Where("id", cast.ToString(field["id"]))
+		queryBuilder = queryBuilder.Where(u.db.Sq.Equal("id", cast.ToString(field["id"])))
 	} else if field["username"] != nil {
-		queryBuilder = queryBuilder.Where("username", cast.ToString(field["username"]))
+		queryBuilder = queryBuilder.Where(u.db.Sq.Equal("username", cast.ToString(field["username"])))
 	} else if field["email"] != nil {
-		queryBuilder = queryBuilder.Where("email", cast.ToString(field["email"]))
+		queryBuilder = queryBuilder.Where(u.db.Sq.Equal("email", cast.ToString(field["email"])))
 	}
 
 	selectQuery, selectArgs, err := queryBuilder.ToSql()
@@ -342,11 +343,20 @@ func (u *userRepo) List(ctx context.Context, filter entity.Filter) (entity.ListU
 		}
 
 		response.Users = append(response.Users, user)
+	}
 
-		countBuilder := u.db.Sq.Builder.Select("COUNT(*)")
-		countBuilder = countBuilder.From(u.tableName)
-		countBuilder = countBuilder.Where("deleted_at IS NULL")
-		countBuilder = countBuilder.Where("role", "user")
+	countBuilder := u.db.Sq.Builder.Select("COUNT(*)")
+	countBuilder = countBuilder.From(u.tableName)
+	countBuilder = countBuilder.Where("deleted_at IS NULL")
+	countBuilder = countBuilder.Where(u.db.Sq.Equal("role", "user"))
+
+	countQuery, countArgs, err := countBuilder.ToSql()
+	if err != nil {
+		return entity.ListUser{}, err
+	}
+
+	if err := u.db.QueryRow(ctx, countQuery, countArgs...).Scan(&response.Count); err != nil {
+		return entity.ListUser{}, err
 	}
 
 	return response, nil

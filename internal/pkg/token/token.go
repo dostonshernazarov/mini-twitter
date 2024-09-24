@@ -2,8 +2,10 @@ package tokens
 
 import (
 	"fmt"
-	"github.com/dostonshernazarov/mini-twitter/internal/pkg/logger"
+	"log"
 	"time"
+
+	"github.com/dostonshernazarov/mini-twitter/internal/pkg/logger"
 
 	"github.com/dgrijalva/jwt-go"
 	"go.uber.org/zap"
@@ -61,7 +63,29 @@ func (jwtHandler *JwtHandler) GenerateJwt() (access, refresh string, err error) 
 	return access, refresh, nil
 }
 
-// ExtractClaim extracts claims from given token
+func (jwtHandler *JwtHandler) ExtractClaims() (jwt.MapClaims, error) {
+	var (
+		token *jwt.Token
+		err   error
+	)
+
+	token, err = jwt.Parse(jwtHandler.Token, func(t *jwt.Token) (interface{}, error) {
+		return []byte(jwtHandler.SigninKey), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !(ok && token.Valid) {
+		log.Println("invalid jwt token")
+		return nil, err
+	}
+
+	return claims, nil
+}
+
 func ExtractClaim(tokenStr string, signingKey []byte) (jwt.MapClaims, error) {
 	var (
 		token *jwt.Token
@@ -69,7 +93,6 @@ func ExtractClaim(tokenStr string, signingKey []byte) (jwt.MapClaims, error) {
 	)
 
 	token, err = jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		// check token signing method etc
 		return signingKey, nil
 	})
 	if err != nil {

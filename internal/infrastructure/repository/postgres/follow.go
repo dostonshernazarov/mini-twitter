@@ -22,14 +22,14 @@ func (f *followRepo) Follow(ctx context.Context, follow entity.FollowAction) (bo
 	countQuery := `SELECT COUNT(*) FROM follows WHERE user_id = $1 AND following_id = $2`
 
 	var count int
-	if err := f.db.QueryRowContext(ctx, countQuery, follow.UserID, follow.FollowingID).Scan(&count); err != nil {
+	if err := f.db.QueryRow(ctx, countQuery, follow.UserID, follow.FollowingID).Scan(&count); err != nil {
 		return false, err
 	}
 
 	if count == 0 {
 		insertQuery := `INSERT INTO follows (user_id, following_id) VALUES ($1, $2)`
 
-		_, err := f.db.ExecContext(ctx, insertQuery, follow.UserID, follow.FollowingID)
+		_, err := f.db.Exec(ctx, insertQuery, follow.UserID, follow.FollowingID)
 		if err != nil {
 			return false, err
 		}
@@ -38,7 +38,7 @@ func (f *followRepo) Follow(ctx context.Context, follow entity.FollowAction) (bo
 	} else {
 		deleteQuery := `DELETE FROM follows WHERE user_id = $1 AND following_id = $2`
 
-		_, err := f.db.ExecContext(ctx, deleteQuery, follow.UserID, follow.FollowingID)
+		_, err := f.db.Exec(ctx, deleteQuery, follow.UserID, follow.FollowingID)
 		if err != nil {
 			return false, err
 		}
@@ -47,7 +47,7 @@ func (f *followRepo) Follow(ctx context.Context, follow entity.FollowAction) (bo
 	}
 }
 
-func (f *followRepo) GetFollowings(ctx context.Context, id int) (entity.ListUser, error) {
+func (f *followRepo) GetFollowings(ctx context.Context, id string) (entity.ListUser, error) {
 	query := `
 	SELECT
 		u.id,
@@ -65,7 +65,7 @@ func (f *followRepo) GetFollowings(ctx context.Context, id int) (entity.ListUser
 	    u.deleted_at IS NULL AND f.user_id = $1
 	`
 
-	rows, err := f.db.QueryContext(ctx, query, id)
+	rows, err := f.db.Query(ctx, query, id)
 	if err != nil {
 		return entity.ListUser{}, err
 	}
@@ -92,14 +92,14 @@ func (f *followRepo) GetFollowings(ctx context.Context, id int) (entity.ListUser
 	}
 
 	countQuery := `SELECT COUNT(*) FROM follows WHERE user_id = $1`
-	if err := f.db.QueryRowContext(ctx, countQuery, id).Scan(&response.Count); err != nil {
+	if err := f.db.QueryRow(ctx, countQuery, id).Scan(&response.Count); err != nil {
 		return entity.ListUser{}, err
 	}
 
 	return response, nil
 }
 
-func (f *followRepo) GetFollowers(ctx context.Context, id int) (entity.ListUser, error) {
+func (f *followRepo) GetFollowers(ctx context.Context, id string) (entity.ListUser, error) {
 	query := `
 	SELECT
 		u.id,
@@ -117,7 +117,7 @@ func (f *followRepo) GetFollowers(ctx context.Context, id int) (entity.ListUser,
 	    u.deleted_at IS NULL AND f.following_id = $1
 	`
 
-	rows, err := f.db.QueryContext(ctx, query, id)
+	rows, err := f.db.Query(ctx, query, id)
 	if err != nil {
 		return entity.ListUser{}, err
 	}
@@ -144,7 +144,7 @@ func (f *followRepo) GetFollowers(ctx context.Context, id int) (entity.ListUser,
 	}
 
 	countQuery := `SELECT COUNT(*) FROM follows WHERE following_id = $1`
-	if err := f.db.QueryRowContext(ctx, countQuery, id).Scan(&response.Count); err != nil {
+	if err := f.db.QueryRow(ctx, countQuery, id).Scan(&response.Count); err != nil {
 		return entity.ListUser{}, err
 	}
 

@@ -41,7 +41,7 @@ func (s *searchRepo) Search(ctx context.Context, data string) (entity.SearchResp
 		AND name ILIKE '%s'
 	`, "%"+data+"%")
 
-	userRows, err := s.db.QueryContext(ctx, searchUsers)
+	userRows, err := s.db.Query(ctx, searchUsers)
 	if err != nil {
 		return entity.SearchResponse{}, err
 	}
@@ -79,7 +79,7 @@ func (s *searchRepo) Search(ctx context.Context, data string) (entity.SearchResp
 		deleted_at IS NULL AND content ILIKE '%s'
 	`, "%"+data+"%")
 
-	tweetRows, err := s.db.QueryContext(ctx, searchTweets)
+	tweetRows, err := s.db.Query(ctx, searchTweets)
 	if err != nil {
 		return entity.SearchResponse{}, err
 	}

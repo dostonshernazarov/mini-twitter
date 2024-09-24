@@ -20,8 +20,8 @@ func NewTweetRepo(db *postgres.PostgresDB) repo.TweetStorageI {
 	}
 }
 
-func (t *tweetRepo) CreateTweet(ctx context.Context, tweet entity.CreateTwitRequest) (entity.CreateTweetResponse, error) {
-	tx, err := t.db.Begin()
+func (t *tweetRepo) CreateTweet(ctx context.Context, tweet entity.CreateTweetRequest) (entity.CreateTweetResponse, error) {
+	tx, err := t.db.Begin(ctx)
 	if err != nil {
 		return entity.CreateTweetResponse{}, err
 	}
@@ -41,7 +41,7 @@ func (t *tweetRepo) CreateTweet(ctx context.Context, tweet entity.CreateTwitRequ
 
 	var response entity.CreateTweetResponse
 
-	err = tx.QueryRowContext(
+	err = tx.QueryRow(
 		ctx,
 		insertTweetQuery,
 		tweet.UserID,
@@ -54,7 +54,7 @@ func (t *tweetRepo) CreateTweet(ctx context.Context, tweet entity.CreateTwitRequ
 		&response.Content,
 	)
 	if err != nil {
-		if err := tx.Rollback(); err != nil {
+		if err := tx.Rollback(ctx); err != nil {
 			return entity.CreateTweetResponse{}, err
 		}
 		return entity.CreateTweetResponse{}, err
@@ -64,8 +64,8 @@ func (t *tweetRepo) CreateTweet(ctx context.Context, tweet entity.CreateTwitRequ
 		insertFileURLQuery := `INSERT INTO files (tweet_id, file_url) VALUES ($1, $2) RETURNING file_url`
 
 		var savedURL string
-		if err := tx.QueryRowContext(ctx, insertFileURLQuery, response.ID, url).Scan(&savedURL); err != nil {
-			if err := tx.Rollback(); err != nil {
+		if err := tx.QueryRow(ctx, insertFileURLQuery, response.ID, url).Scan(&savedURL); err != nil {
+			if err := tx.Rollback(ctx); err != nil {
 				return entity.CreateTweetResponse{}, err
 			}
 			return entity.CreateTweetResponse{}, err
@@ -74,8 +74,8 @@ func (t *tweetRepo) CreateTweet(ctx context.Context, tweet entity.CreateTwitRequ
 		response.URLs = append(response.URLs, savedURL)
 	}
 
-	if err := tx.Commit(); err != nil {
-		if err := tx.Rollback(); err != nil {
+	if err := tx.Commit(ctx); err != nil {
+		if err := tx.Rollback(ctx); err != nil {
 			return entity.CreateTweetResponse{}, err
 		}
 		return entity.CreateTweetResponse{}, err
@@ -104,7 +104,7 @@ func (t *tweetRepo) UpdateTweet(ctx context.Context, tweet entity.UpdateTweetReq
 		urls     []string
 		response entity.UpdateTweetResponse
 	)
-	err := t.db.QueryRowContext(ctx, query, tweet.Content, tweet.ID).Scan(
+	err := t.db.QueryRow(ctx, query, tweet.Content, tweet.ID).Scan(
 		&response.ID,
 		&response.UserID,
 		&response.ParentTweetID,
@@ -120,18 +120,15 @@ func (t *tweetRepo) UpdateTweet(ctx context.Context, tweet entity.UpdateTweetReq
 	return response, nil
 }
 
-func (t *tweetRepo) DeleteTweet(ctx context.Context, id int) error {
+func (t *tweetRepo) DeleteTweet(ctx context.Context, id string) error {
 	query := `UPDATE tweets SET deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL`
 
-	result, err := t.db.ExecContext(ctx, query, id)
+	result, err := t.db.Exec(ctx, query, id)
 	if err != nil {
 		return err
 	}
 
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
+	rows := result.RowsAffected()
 
 	if rows == 0 {
 		return sql.ErrNoRows
@@ -140,7 +137,7 @@ func (t *tweetRepo) DeleteTweet(ctx context.Context, id int) error {
 	return nil
 }
 
-func (t *tweetRepo) GetTweet(ctx context.Context, id int) (entity.GetTweetResponse, error) {
+func (t *tweetRepo) GetTweet(ctx context.Context, id string) (entity.GetTweetResponse, error) {
 	query := `
 	SELECT
 		id,
@@ -158,7 +155,7 @@ func (t *tweetRepo) GetTweet(ctx context.Context, id int) (entity.GetTweetRespon
 		urls     []string
 		response entity.GetTweetResponse
 	)
-	err := t.db.QueryRowContext(ctx, query, id).Scan(
+	err := t.db.QueryRow(ctx, query, id).Scan(
 		&response.ID,
 		&response.UserID,
 		&response.ParentTweetID,
@@ -192,7 +189,7 @@ func (t *tweetRepo) ListTweets(ctx context.Context, filter entity.Filter) (entit
 	var response entity.ListTweetsResponse
 	offset := filter.Limit * (filter.Page - 1)
 
-	rows, err := t.db.QueryContext(ctx, query, filter.Limit, offset)
+	rows, err := t.db.Query(ctx, query, filter.Limit, offset)
 	if err != nil {
 		return entity.ListTweetsResponse{}, err
 	}
@@ -220,14 +217,14 @@ func (t *tweetRepo) ListTweets(ctx context.Context, filter entity.Filter) (entit
 	}
 
 	countQuery := `SELECT COUNT(*) FROM tweets WHERE deleted_at IS NULL`
-	if err := t.db.QueryRowContext(ctx, countQuery).Scan(&response.Count); err != nil {
+	if err := t.db.QueryRow(ctx, countQuery).Scan(&response.Count); err != nil {
 		return entity.ListTweetsResponse{}, err
 	}
 
 	return response, nil
 }
 
-func (t *tweetRepo) UserTweets(ctx context.Context, usrID int) (entity.ListTweetsResponse, error) {
+func (t *tweetRepo) UserTweets(ctx context.Context, usrID string) (entity.ListTweetsResponse, error) {
 	query := `
 	SELECT
 		t.id,
@@ -243,7 +240,7 @@ func (t *tweetRepo) UserTweets(ctx context.Context, usrID int) (entity.ListTweet
 
 	var response entity.ListTweetsResponse
 
-	rows, err := t.db.QueryContext(ctx, query, usrID)
+	rows, err := t.db.Query(ctx, query, usrID)
 	if err != nil {
 		return entity.ListTweetsResponse{}, err
 	}
@@ -271,7 +268,7 @@ func (t *tweetRepo) UserTweets(ctx context.Context, usrID int) (entity.ListTweet
 	}
 
 	countQuery := `SELECT COUNT(*) FROM tweets WHERE deleted_at IS NULL and user_id = $1`
-	if err := t.db.QueryRowContext(ctx, countQuery, usrID).Scan(&response.Count); err != nil {
+	if err := t.db.QueryRow(ctx, countQuery, usrID).Scan(&response.Count); err != nil {
 		return entity.ListTweetsResponse{}, err
 	}
 

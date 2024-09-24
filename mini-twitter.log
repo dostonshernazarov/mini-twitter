@@ -1,0 +1,111 @@
+2024-09-24T15:41:32.787+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost7777"}
+2024-09-24T15:41:32.788+0500	ERROR	app/main.go:30	app run	{"error": "listen tcp: address localhost7777: missing port in address"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T15:41:39.015+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T15:47:18.249+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T15:47:20.401+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T15:47:20.403+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T15:48:30.156+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T15:48:39.951+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T15:48:39.955+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T15:48:58.154+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T15:49:11.208+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T15:49:11.209+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T15:50:04.869+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T15:50:10.921+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T15:50:10.926+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T15:50:46.362+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7070"}
+2024-09-24T15:50:47.426+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T15:50:47.427+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T17:39:34.782+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T17:54:10.664+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T17:56:21.410+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T17:56:21.411+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T17:58:16.536+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:00:07.971+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:00:07.972+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:00:11.581+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:00:22.991+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:00:22.992+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:00:47.594+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:00:53.843+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:00:53.844+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:01:09.978+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:02:20.778+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:02:20.780+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:02:23.658+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:02:29.350+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:02:29.352+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:03:38.899+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:03:46.912+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:03:46.913+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:04:16.972+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:04:47.871+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:04:47.873+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:05:20.099+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:05:32.499+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:05:32.502+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:05:40.768+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:05:53.895+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:05:53.899+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:05:55.633+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:06:25.451+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:06:25.453+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:07:08.674+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:07:27.540+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:07:27.542+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:16:54.040+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:17:13.923+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:17:13.925+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:17:27.722+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:17:51.684+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:17:51.685+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:19:00.071+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:20:07.587+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:20:07.588+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-24T18:20:38.311+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-24T18:27:55.419+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-24T18:27:55.419+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30

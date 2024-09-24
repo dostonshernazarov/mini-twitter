@@ -8,13 +8,30 @@ import (
 	"github.com/go-ozzo/ozzo-validation/is"
 )
 
+type User struct {
+	Name     string `json:"name"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type UserResponse struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
+	Access   string `json:"access"`
+}
+
 type CreateUserRequest struct {
 	ID        string
-	Name      string    `json:"name"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
-	Role      string    `json:"role"`
+	Name      string `json:"name"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	Role      string `json:"role"`
+	Refresh   string
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -30,14 +47,14 @@ type CreateUserResponse struct {
 }
 
 type UpdateUserRequest struct {
-	ID       int     `json:"id"`
+	ID       string  `json:"id"`
 	Name     string  `json:"name"`
 	Username string  `json:"username"`
 	Bio      *string `json:"bio"`
 }
 
 type UpdateUserResponse struct {
-	ID             int     `json:"id"`
+	ID             string  `json:"id"`
 	Name           string  `json:"name"`
 	Username       string  `json:"username"`
 	Email          string  `json:"email"`
@@ -47,12 +64,12 @@ type UpdateUserResponse struct {
 }
 
 type UpdateUserColumnsRequest struct {
-	ID     int                    `json:"id"`
+	ID     string                 `json:"id"`
 	Fields map[string]interface{} `json:"fields"`
 }
 
 type GetUserResponse struct {
-	ID             int     `json:"id"`
+	ID             string  `json:"id"`
 	Name           string  `json:"name"`
 	Username       string  `json:"username"`
 	Email          string  `json:"email"`

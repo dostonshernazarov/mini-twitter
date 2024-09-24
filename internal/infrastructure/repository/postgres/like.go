@@ -22,14 +22,14 @@ func (l *likeRepo) Like(ctx context.Context, like entity.LikeAction) (bool, erro
 	countQuery := `SELECT COUNT(*) FROM likes WHERE user_id = $1 AND tweet_id = $2`
 
 	var count int
-	if err := l.db.QueryRowContext(ctx, countQuery, like.UserID, like.TweetID).Scan(&count); err != nil {
+	if err := l.db.QueryRow(ctx, countQuery, like.UserID, like.TweetID).Scan(&count); err != nil {
 		return false, err
 	}
 
 	if count == 0 {
 		insertQuery := `INSERT INTO likes (user_id, tweet_id) VALUES ($1, $2)`
 
-		_, err := l.db.ExecContext(ctx, insertQuery, like.UserID, like.TweetID)
+		_, err := l.db.Exec(ctx, insertQuery, like.UserID, like.TweetID)
 		if err != nil {
 			return false, err
 		}
@@ -38,7 +38,7 @@ func (l *likeRepo) Like(ctx context.Context, like entity.LikeAction) (bool, erro
 	} else {
 		deleteQuery := `DELETE FROM likes WHERE user_id = $1 AND tweet_id = $2`
 
-		_, err := l.db.ExecContext(ctx, deleteQuery, like.UserID, like.TweetID)
+		_, err := l.db.Exec(ctx, deleteQuery, like.UserID, like.TweetID)
 		if err != nil {
 			return false, err
 		}

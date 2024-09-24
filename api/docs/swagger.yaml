@@ -1,0 +1,1219 @@
+definitions:
+  entity.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+      user_id:
+        type: string
+    type: object
+  entity.CreateTweetRequest:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      files:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      parent_tweet_id:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  entity.CreateTweetResponse:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      parent_tweet_id:
+        type: integer
+      updated_at:
+        type: string
+      urls:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: string
+    type: object
+  entity.Error:
+    properties:
+      message:
+        type: string
+    type: object
+  entity.FollowAction:
+    properties:
+      following_id:
+        type: string
+    type: object
+  entity.GetTweetResponse:
+    properties:
+      content:
+        type: string
+      id:
+        type: string
+      parent_tweet_id:
+        type: string
+      urls:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: string
+    type: object
+  entity.GetUserResponse:
+    properties:
+      bio:
+        type: string
+      email:
+        type: string
+      followers_count:
+        type: integer
+      following_count:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+      profile_picture:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+  entity.LikeAction:
+    properties:
+      tweet_id:
+        type: string
+    type: object
+  entity.ListTweetsResponse:
+    properties:
+      count:
+        type: integer
+      tweets:
+        items:
+          $ref: '#/definitions/entity.GetTweetResponse'
+        type: array
+    type: object
+  entity.ListUser:
+    properties:
+      count:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/entity.GetUserResponse'
+        type: array
+    type: object
+  entity.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  entity.ResetPasswordRequest:
+    properties:
+      email:
+        type: string
+      new_password:
+        type: string
+    type: object
+  entity.ResponseWithMessage:
+    properties:
+      message:
+        type: string
+    type: object
+  entity.ResponseWithStatus:
+    properties:
+      status:
+        type: boolean
+    type: object
+  entity.SignUpRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  entity.UpdateTweetRequest:
+    properties:
+      content:
+        type: string
+      id:
+        type: string
+    type: object
+  entity.UpdateTweetResponse:
+    properties:
+      content:
+        type: string
+      id:
+        type: integer
+      parent_tweet_id:
+        type: integer
+      urls:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: integer
+    type: object
+  entity.UpdateUserRequest:
+    properties:
+      bio:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      username:
+        type: string
+    type: object
+  entity.User:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  entity.UserResponse:
+    properties:
+      access:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+  entity.VerifyForgotPasswordRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+    type: object
+  entity.VerifySignUpRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API for Mini Twitter
+  title: Welcome To Mini Twitter API
+paths:
+  /v1/auth/forgot-password/{email}:
+    post:
+      consumes:
+      - application/json
+      description: this api for sending request about forgot password
+      parameters:
+      - description: Email
+        in: path
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ResponseWithMessage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      summary: Forgot Password
+      tags:
+      - auth
+  /v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: this api for login to site
+      parameters:
+      - description: Login Model
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      summary: Log In
+      tags:
+      - auth
+  /v1/auth/refresh/{refresh}:
+    get:
+      consumes:
+      - application/json
+      description: this api for getting a new access and refresh token
+      parameters:
+      - description: Refresh token
+        in: path
+        name: refresh
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      summary: Get New Access
+      tags:
+      - auth
+  /v1/auth/reset-password:
+    put:
+      consumes:
+      - application/json
+      description: this api for reset password
+      parameters:
+      - description: Reset Password Model
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ResponseWithStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      summary: Reset Password
+      tags:
+      - auth
+  /v1/auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: this api for sign-up a new users
+      parameters:
+      - description: Sign Up Model
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.SignUpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ResponseWithMessage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      summary: Sign Up
+      tags:
+      - auth
+  /v1/auth/verify:
+    post:
+      consumes:
+      - application/json
+      description: this api for verify sign-up request
+      parameters:
+      - description: Verify Sign Up Model
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.VerifySignUpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      summary: Verify Sign Up
+      tags:
+      - auth
+  /v1/auth/verify-forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: this api for verify forgot password
+      parameters:
+      - description: Verify Forgot Password Model
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.VerifyForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ResponseWithStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      summary: Verify Forgot Password
+      tags:
+      - auth
+  /v1/followers/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ListUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: User Followers
+      tags:
+      - follow
+  /v1/followings/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ListUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: User Followings
+      tags:
+      - follow
+  /v1/follows:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Follow Model
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.FollowAction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ResponseWithStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Follow-Unfollow
+      tags:
+      - follow
+  /v1/likes:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Like Model
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.LikeAction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ResponseWithStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Like-Unlike
+      tags:
+      - like
+  /v1/search/{data}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Search Content
+        in: path
+        name: data
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ListUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Search
+      tags:
+      - search
+  /v1/tweets:
+    get:
+      consumes:
+      - application/json
+      description: this api for getting list of tweet
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ListTweetsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: List Tweet
+      tags:
+      - tweet
+    post:
+      consumes:
+      - application/json
+      description: this api for creating a new tweet
+      parameters:
+      - description: Create Tweet Model
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CreateTweetRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.CreateTweetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Create Tweet
+      tags:
+      - tweet
+    put:
+      consumes:
+      - application/json
+      description: this api for updating a tweet
+      parameters:
+      - description: Update Tweet Model
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UpdateTweetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.UpdateTweetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Update Tweet
+      tags:
+      - tweet
+  /v1/tweets/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: this api for deleting a tweet with id
+      parameters:
+      - description: Tweet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ResponseWithStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete Tweet
+      tags:
+      - tweet
+    get:
+      consumes:
+      - application/json
+      description: this api for getting a tweet with id
+      parameters:
+      - description: Tweet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.GetTweetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Get Tweet
+      tags:
+      - tweet
+  /v1/tweets/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: this api for creating a new tweet
+      parameters:
+      - collectionFormat: csv
+        description: Tweet Files
+        in: formData
+        items:
+          type: file
+        name: files
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Upload Tweet Files
+      tags:
+      - tweet
+  /v1/tweets/users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: this api for getting tweet list of user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ListTweetsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: List User Tweet
+      tags:
+      - tweet
+  /v1/users:
+    get:
+      consumes:
+      - application/json
+      description: this api for getting a user
+      parameters:
+      - description: Key
+        in: query
+        name: key
+        required: true
+        type: string
+      - description: Value
+        in: query
+        name: value
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.GetUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Get User
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: this api for creating a new user
+      parameters:
+      - description: Create User Model
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/entity.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Create User
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: this api for updating a user
+      parameters:
+      - description: Update User Model
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.ResponseWithStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Update User
+      tags:
+      - user
+  /v1/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: this api for deleting a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ResponseWithStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete User
+      tags:
+      - user
+  /v1/users/list:
+    get:
+      consumes:
+      - application/json
+      description: this api for getting list of user
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.ListUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: List User
+      tags:
+      - user
+  /v1/users/upload-photo:
+    post:
+      consumes:
+      - application/json
+      description: this api for uploading user profile
+      parameters:
+      - description: User ID
+        in: formData
+        name: id
+        required: true
+        type: integer
+      - description: User Profile Photo
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.GetUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Upload User Profile
+      tags:
+      - user
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

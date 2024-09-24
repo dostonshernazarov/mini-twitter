@@ -1,23 +1,25 @@
 package config
 
 import (
-	"github.com/spf13/cast"
 	"os"
 )
 
 type Config struct {
 	APP         string
 	Environment string // development, staging, production
-	HTTPHost    string
-	HTTPPort    int
-	CtxTimeout  string
-	Server      struct {
+
+	Server struct {
 		Host         string
 		Port         string
 		ReadTimeout  string
 		WriteTimeout string
 		IdleTimeout  string
 	}
+
+	Context struct {
+		TimeOut string
+	}
+
 	GinMode string // debug, test, release
 
 	PostgresHost     string
@@ -28,9 +30,7 @@ type Config struct {
 	PostgresSSLMode  string
 
 	RedisHost string
-	RedisPort int
-
-	Timeout string
+	RedisPort string
 
 	SigningKey string
 	AccessTTL  string
@@ -42,7 +42,7 @@ type Config struct {
 	LogLevel string
 
 	SMTPHost     string
-	SMTPPort     int
+	SMTPPort     string
 	SMTPEmail    string
 	SMTPPassword string
 }
@@ -50,41 +50,49 @@ type Config struct {
 func Load() *Config {
 	var cfg Config
 
-	cfg.APP = cast.ToString(getEnv("APP", "app"))
-	cfg.Environment = cast.ToString(getEnv("ENVIRONMENT", "development"))
-	cfg.HTTPHost = cast.ToString(getEnv("HTTP_HOST", "twitter"))
-	cfg.HTTPPort = cast.ToInt(getEnv("HTTP_PORT", "7777"))
-	cfg.CtxTimeout = cast.ToString(getEnv("CONTEXT_TIMEOUT", "7s"))
-	cfg.GinMode = cast.ToString(getEnv("GIN_MODE", "debug"))
+	// general configuration
+	cfg.APP = getEnv("APP", "mini-twitter")
+	cfg.Environment = getEnv("ENVIRONMENT", "develop")
+	cfg.LogLevel = getEnv("LOG_LEVEL", "debug")
+	cfg.Context.TimeOut = getEnv("CONTEXT_TIMEOUT", "7s")
+	cfg.GinMode = getEnv("GIN_MODE", "debug")
 
-	cfg.PostgresHost = cast.ToString(getEnv("POSTGRES_HOST", "twitter_postgres"))
-	cfg.PostgresPort = cast.ToString(getEnv("POSTGRES_PORT", "5432"))
-	cfg.PostgresUser = cast.ToString(getEnv("POSTGRES_USER", "postgres"))
-	cfg.PostgresPassword = cast.ToString(getEnv("POSTGRES_PASSWORD", "root"))
-	cfg.PostgresDatabase = cast.ToString(getEnv("POSTGRES_DATABASE", "twitter_db"))
-	cfg.PostgresSSLMode = cast.ToString(getEnv("POSTGRES_SSL_MODE", "disable"))
+	// server configuration
+	cfg.Server.Host = getEnv("SERVER_HOST", "your_host")
+	cfg.Server.Port = getEnv("SERVER_PORT", ":your_port")
+	cfg.Server.ReadTimeout = getEnv("SERVER_READ_TIMEOUT", "10s")
+	cfg.Server.WriteTimeout = getEnv("SERVER_WRITE_TIMEOUT", "10s")
+	cfg.Server.IdleTimeout = getEnv("SERVER_IDLE_TIMEOUT", "120s")
 
-	cfg.RedisHost = cast.ToString(getEnv("REDIS_HOST", "twitter_redis"))
-	cfg.RedisPort = cast.ToInt(getEnv("REDIS_PORT", "6379"))
+	// db configuration
+	cfg.PostgresHost = getEnv("POSTGRES_HOST", "postgres_host")
+	cfg.PostgresPort = getEnv("POSTGRES_PORT", "postgres_port")
+	cfg.PostgresUser = getEnv("POSTGRES_USER", "postgres_user")
+	cfg.PostgresPassword = getEnv("POSTGRES_PASSWORD", "postgres-password")
+	cfg.PostgresDatabase = getEnv("POSTGRES_DATABASE", "postgres_db")
+	cfg.PostgresSSLMode = getEnv("POSTGRES_SSL_MODE", "disable")
 
-	cfg.Timeout = cast.ToString(getEnv("CONTEXT_TIMEOUT", "7s"))
+	// redis configuration
+	cfg.RedisHost = getEnv("REDIS_HOST", "redis_host")
+	cfg.RedisPort = getEnv("REDIS_PORT", "redis_port")
 
-	cfg.SigningKey = cast.ToString(getEnv("SIGNING_KEY", "twitter-secret"))
-	cfg.AccessTTL = cast.ToString(getEnv("ACCESS_TTL", "6h"))
-	cfg.RefreshTTL = cast.ToString(getEnv("REFRESH_TTL", "24h"))
+	// token configuration
+	cfg.SigningKey = getEnv("SIGNING_KEY", "secret_key")
+	cfg.AccessTTL = getEnv("ACCESS_TTL", "6h")
+	cfg.RefreshTTL = getEnv("REFRESH_TTL", "24h")
 
-	cfg.CSVFilePath = cast.ToString(getEnv("CSV_FILE_PATH", "./config/auth.csv"))
-	cfg.ConfFilePath = cast.ToString(getEnv("CONF_FILE_PATH", "./config/auth.conf"))
+	cfg.CSVFilePath = getEnv("CSV_FILE_PATH", "path_to_csv")
+	cfg.ConfFilePath = getEnv("CONF_FILE_PATH", "path_to_conf")
 
-	cfg.SMTPHost = cast.ToString(getEnv("SMTP_HOST", "smtp.gmail.com"))
-	cfg.SMTPPort = cast.ToInt(getEnv("SMTP_PORT", "587"))
-	cfg.SMTPEmail = cast.ToString(getEnv("SMTP_EMAIL", "xasannosirov094@gmail.com"))
-	cfg.SMTPPassword = cast.ToString(getEnv("SMTP_PASSWORD", "zvhkpndjwrkiemci"))
+	cfg.SMTPHost = getEnv("SMTP_HOST", "smtp.gmail.com")
+	cfg.SMTPPort = getEnv("SMTP_PORT", "587")
+	cfg.SMTPEmail = getEnv("SMTP_EMAIL", "your_email_address")
+	cfg.SMTPPassword = getEnv("SMTP_PASSWORD", "your_email_password")
 
 	return &cfg
 }
 
-func getEnv(key string, defaultVal interface{}) interface{} {
+func getEnv(key, defaultVal string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
 	}

@@ -20,7 +20,7 @@ func NewTweetService(timeout time.Duration, repository repo.TweetStorageI) Twit 
 	}
 }
 
-func (t *tweetService) CreateTweet(ctx context.Context, tweet entity.CreateTwitRequest) (entity.CreateTweetResponse, error) {
+func (t *tweetService) CreateTweet(ctx context.Context, tweet entity.CreateTweetRequest) (entity.CreateTweetResponse, error) {
 	return t.repo.CreateTweet(ctx, tweet)
 }
 
@@ -28,11 +28,11 @@ func (t *tweetService) UpdateTweet(ctx context.Context, tweet entity.UpdateTweet
 	return t.repo.UpdateTweet(ctx, tweet)
 }
 
-func (t *tweetService) DeleteTweet(ctx context.Context, id int) error {
+func (t *tweetService) DeleteTweet(ctx context.Context, id string) error {
 	return t.repo.DeleteTweet(ctx, id)
 }
 
-func (t *tweetService) GetTweet(ctx context.Context, id int) (entity.GetTweetResponse, error) {
+func (t *tweetService) GetTweet(ctx context.Context, id string) (entity.GetTweetResponse, error) {
 	return t.repo.GetTweet(ctx, id)
 }
 
@@ -40,6 +40,6 @@ func (t *tweetService) ListTweets(ctx context.Context, filter entity.Filter) (en
 	return t.repo.ListTweets(ctx, filter)
 }
 
-func (t *tweetService) UserTweets(ctx context.Context, usrID int) (entity.ListTweetsResponse, error) {
+func (t *tweetService) UserTweets(ctx context.Context, usrID string) (entity.ListTweetsResponse, error) {
 	return t.repo.UserTweets(ctx, usrID)
 }

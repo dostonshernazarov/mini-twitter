@@ -6,6 +6,7 @@ import (
 
 	"github.com/dostonshernazarov/mini-twitter/internal/entity"
 	"github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/postgres/repo"
+	"github.com/google/uuid"
 )
 
 type userService struct {
@@ -20,6 +21,10 @@ func NewUserService(timeout time.Duration, repository repo.UserStorageI) User {
 	}
 }
 
+func (u *userService) beforeCreate(user *entity.CreateUserRequest) {
+	user.ID = uuid.New().String()
+}
+
 func (u *userService) UniqueUsername(ctx context.Context, username string) (bool, error) {
 	return u.repo.UniqueUsername(ctx, username)
 }
@@ -30,22 +35,23 @@ func (u *userService) UniqueEmail(ctx context.Context, email string) (bool, erro
 
 func (u *userService) Create(ctx context.Context, user entity.CreateUserRequest) (entity.CreateUserResponse, error) {
 
+	u.beforeCreate(&user)
 	return u.repo.Create(ctx, user)
 }
 
-func (u *userService) Update(ctx context.Context, user entity.UpdateUserRequest) (entity.UpdateUserResponse, error) {
+func (u *userService) Update(ctx context.Context, user entity.UpdateUserRequest) error {
 	return u.repo.Update(ctx, user)
 }
 
-func (u *userService) UpdatePasswd(ctx context.Context, id int, passwd string) error {
+func (u *userService) UpdatePasswd(ctx context.Context, id string, passwd string) error {
 	return u.repo.UpdatePasswd(ctx, id, passwd)
 }
 
-func (u *userService) UploadImage(ctx context.Context, id int, url string) error {
+func (u *userService) UploadImage(ctx context.Context, id string, url string) error {
 	return u.repo.UploadImage(ctx, id, url)
 }
 
-func (u *userService) Delete(ctx context.Context, id int) error {
+func (u *userService) Delete(ctx context.Context, id string) error {
 	return u.repo.Delete(ctx, id)
 }
 

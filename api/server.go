@@ -11,11 +11,11 @@ import (
 func NewServer(cfg *config.Config, handler http.Handler) (*http.Server, error) {
 	readTimeout, err := time.ParseDuration(cfg.Server.ReadTimeout)
 	if err != nil {
-		return nil, fmt.Errorf("error while parsing server idle timeout: %v", err)
+		return nil, fmt.Errorf("error while parsing server read timeout: %v", err)
 	}
 	writeTimeout, err := time.ParseDuration(cfg.Server.WriteTimeout)
 	if err != nil {
-		return nil, fmt.Errorf("error while parsing server idle timeout: %v", err)
+		return nil, fmt.Errorf("error while parsing server write timeout: %v", err)
 	}
 	idleTimeout, err := time.ParseDuration(cfg.Server.IdleTimeout)
 	if err != nil {

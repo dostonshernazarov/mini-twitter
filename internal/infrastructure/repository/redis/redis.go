@@ -14,11 +14,11 @@ type RedisStorage struct {
 
 func NewRedisStorage(cfg *config.Config) (*RedisStorage, error) {
 	client := redis.NewClient(&redis.Options{
-		Addr: fmt.Sprintf("%s:%d", cfg.RedisHost, cfg.RedisPort),
+		Addr: fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort),
 		DB:   0,
 	})
 
-	duration, err := time.ParseDuration(cfg.CtxTimeout)
+	duration, err := time.ParseDuration(cfg.Context.TimeOut)
 	if err != nil {
 		return nil, err
 	}

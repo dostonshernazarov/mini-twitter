@@ -24,10 +24,10 @@ func (f *followService) Follow(ctx context.Context, follow entity.FollowAction) 
 	return f.repo.Follow(ctx, follow)
 }
 
-func (f *followService) GetFollowings(ctx context.Context, id int) (entity.ListUser, error) {
+func (f *followService) GetFollowings(ctx context.Context, id string) (entity.ListUser, error) {
 	return f.repo.GetFollowings(ctx, id)
 }
 
-func (f *followService) GetFollowers(ctx context.Context, id int) (entity.ListUser, error) {
+func (f *followService) GetFollowers(ctx context.Context, id string) (entity.ListUser, error) {
 	return f.repo.GetFollowers(ctx, id)
 }
