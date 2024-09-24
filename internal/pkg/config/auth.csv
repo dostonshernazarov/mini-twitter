@@ -11,12 +11,12 @@ p, unauthorized, /v1/auth/verify-forgot-password, POST
 p, unauthorized, /v1/auth/reset-password, PUT
 p, unauthorized, /v1/auth/refresh/{refresh}, GET
 
-p, unauthorized, /v1/users, GET
 p, unauthorized, /v1/tweets/{id}, GET
 p, unauthorized, /v1/tweets, GET
 p, unauthorized, /v1/search/{data}, GET
 
 p, user, /v1/users, GET
+p, user, /v1/users/profile, GET
 p, user, /v1/users/{id}, DELETE
 p, user, /v1/users, PUT
 p, user, /v1/users/upload-photo, POST
@@ -29,8 +29,8 @@ p, user, /v1/tweets/users/{id}, GET
 p, user, /v1/tweets/upload, POST
 p, user, /v1/likes, POST
 p, user, /v1/follows, POST
-p, user, /v1/followings/{id}, GET
-p, user, /v1/followers/{id}, GET
+p, user, /v1/followings, GET
+p, user, /v1/followers, GET
 p, user, /v1/search/{data}, GET
 
 p, admin, /v1/*, POST

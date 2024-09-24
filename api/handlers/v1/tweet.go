@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/dostonshernazarov/mini-twitter/internal/entity"
+	"github.com/spf13/cast"
 
 	"github.com/dostonshernazarov/mini-twitter/internal/pkg/utils"
 
@@ -81,7 +82,7 @@ func (h *HandlerV1) UploadTweetFiles(c *gin.Context) {
 // @Tags			tweet
 // @Accept 			json
 // @Produce 		json
-// @Param 			request body entity.CreateTweetRequest true "Create Tweet Model"
+// @Param 			request body entity.TweetRequest true "Create Tweet Model"
 // @Success 		201 {object} entity.CreateTweetResponse
 // @Failure 		400 {object} entity.Error
 // @Failure 		401 {object} entity.Error
@@ -101,7 +102,7 @@ func (h *HandlerV1) CreateTweet(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), duration)
 	defer cancel()
 
-	var request entity.CreateTweetRequest
+	var request entity.TweetRequest
 
 	if err := c.ShouldBind(&request); err != nil {
 		c.JSON(http.StatusBadRequest, entity.Error{
@@ -110,6 +111,17 @@ func (h *HandlerV1) CreateTweet(c *gin.Context) {
 		log.Println(err.Error())
 		return
 	}
+
+	claims, err := utils.GetClaimsFromToken(c.Request, h.Config)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
+	}
+
+	UserId := cast.ToString(claims["sub"])
 
 	// checking: post or repost
 	if request.ParentTweetID != nil && request.Content != nil {
@@ -124,7 +136,13 @@ func (h *HandlerV1) CreateTweet(c *gin.Context) {
 		return
 	}
 
-	response, err := h.Tweet.CreateTweet(ctx, request)
+	response, err := h.Tweet.CreateTweet(ctx, entity.CreateTweetRequest{
+		ID:            uuid.NewString(),
+		UserID:        UserId,
+		ParentTweetID: request.ParentTweetID,
+		Content:       request.Content,
+		URLs:          request.URLs,
+	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, entity.Error{
 			Message: entity.ServerError,
@@ -175,6 +193,17 @@ func (h *HandlerV1) UpdateTweet(c *gin.Context) {
 		return
 	}
 
+	claims, err := utils.GetClaimsFromToken(c.Request, h.Config)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
+	}
+
+	userId := cast.ToString(claims["sub"])
+
 	tweet, err := h.Tweet.GetTweet(ctx, request.ID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -190,6 +219,13 @@ func (h *HandlerV1) UpdateTweet(c *gin.Context) {
 			log.Println(err.Error())
 			return
 		}
+	}
+	// only owner can update
+	if tweet.UserID != userId {
+		c.JSON(http.StatusUnauthorized, entity.Error{
+			Message: entity.NoAccess,
+		})
+		return
 	}
 
 	// no update reposted tweet
@@ -241,6 +277,42 @@ func (h *HandlerV1) DeleteTweet(c *gin.Context) {
 	defer cancel()
 
 	id := c.Param("id")
+
+	claims, err := utils.GetClaimsFromToken(c.Request, h.Config)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
+	}
+
+	userId := cast.ToString(claims["sub"])
+
+	tweet, err := h.Tweet.GetTweet(ctx, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.JSON(http.StatusNotFound, entity.Error{
+				Message: entity.NotFoundData,
+			})
+			log.Println(err.Error())
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, entity.Error{
+				Message: entity.ServerError,
+			})
+			log.Println(err.Error())
+			return
+		}
+	}
+
+	// only owner can update
+	if tweet.UserID != userId {
+		c.JSON(http.StatusUnauthorized, entity.Error{
+			Message: entity.NoAccess,
+		})
+		return
+	}
 
 	if err := h.Tweet.DeleteTweet(ctx, id); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -382,7 +454,6 @@ func (h *HandlerV1) ListTweets(c *gin.Context) {
 // @Tags			tweet
 // @Accept 			json
 // @Produce 		json
-// @Param 			id path string true "User ID"
 // @Success 		200 {object} entity.ListTweetsResponse
 // @Failure 		400 {object} entity.Error
 // @Failure 		401 {object} entity.Error
@@ -403,9 +474,18 @@ func (h *HandlerV1) UserTweets(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), duration)
 	defer cancel()
 
-	id := c.Param("id")
+	claims, err := utils.GetClaimsFromToken(c.Request, h.Config)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
+	}
 
-	tweets, err := h.Tweet.UserTweets(ctx, id)
+	userId := cast.ToString(claims["sub"])
+
+	tweets, err := h.Tweet.UserTweets(ctx, userId)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

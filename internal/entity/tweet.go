@@ -2,10 +2,16 @@ package entity
 
 import "time"
 
+type TweetRequest struct {
+	ParentTweetID *string  `json:"parent_tweet_id"`
+	Content       *string  `json:"content"`
+	URLs          []string `json:"files"`
+}
+
 type CreateTweetRequest struct {
 	ID            string    `json:"id"`
-	UserID        int       `json:"user_id"`
-	ParentTweetID *int      `json:"parent_tweet_id"`
+	UserID        string    `json:"user_id"`
+	ParentTweetID *string   `json:"parent_tweet_id"`
 	Content       *string   `json:"content"`
 	URLs          []string  `json:"files"`
 	CreatedAt     time.Time `json:"created_at"`
@@ -15,7 +21,7 @@ type CreateTweetRequest struct {
 type CreateTweetResponse struct {
 	ID            string    `json:"id"`
 	UserID        string    `json:"user_id"`
-	ParentTweetID *int      `json:"parent_tweet_id"`
+	ParentTweetID *string   `json:"parent_tweet_id"`
 	Content       *string   `json:"content"`
 	URLs          []string  `json:"urls"`
 	CreatedAt     time.Time `json:"created_at"`
@@ -28,9 +34,9 @@ type UpdateTweetRequest struct {
 }
 
 type UpdateTweetResponse struct {
-	ID            int      `json:"id"`
-	UserID        int      `json:"user_id"`
-	ParentTweetID *int     `json:"parent_tweet_id"`
+	ID            string   `json:"id"`
+	UserID        string   `json:"user_id"`
+	ParentTweetID *string  `json:"parent_tweet_id"`
 	Content       *string  `json:"content"`
 	URLs          []string `json:"urls"`
 }

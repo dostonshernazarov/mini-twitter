@@ -333,7 +333,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/followers/{id}": {
+        "/v1/followers": {
             "get": {
                 "security": [
                     {
@@ -350,15 +350,6 @@ const docTemplate = `{
                     "follow"
                 ],
                 "summary": "User Followers",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -399,7 +390,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/followings/{id}": {
+        "/v1/followings": {
             "get": {
                 "security": [
                     {
@@ -416,15 +407,6 @@ const docTemplate = `{
                     "follow"
                 ],
                 "summary": "User Followings",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -823,7 +805,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.CreateTweetRequest"
+                            "$ref": "#/definitions/entity.TweetRequest"
                         }
                     }
                 ],
@@ -947,15 +929,6 @@ const docTemplate = `{
                     "tweet"
                 ],
                 "summary": "List User Tweet",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1225,7 +1198,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.UpdateUserRequest"
+                            "$ref": "#/definitions/entity.UpdateUserRequestSwag"
                         }
                     }
                 ],
@@ -1367,6 +1340,64 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/entity.ListUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/profile": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "this api for getting a user data by access token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get User profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.GetUserResponse"
                         }
                     },
                     "400": {
@@ -1559,35 +1590,6 @@ const docTemplate = `{
                 }
             }
         },
-        "entity.CreateTweetRequest": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "files": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "id": {
-                    "type": "string"
-                },
-                "parent_tweet_id": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "entity.CreateTweetResponse": {
             "type": "object",
             "properties": {
@@ -1601,7 +1603,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "parent_tweet_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -1779,6 +1781,23 @@ const docTemplate = `{
                 }
             }
         },
+        "entity.TweetRequest": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "parent_tweet_id": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.UpdateTweetRequest": {
             "type": "object",
             "properties": {
@@ -1797,10 +1816,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "parent_tweet_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "urls": {
                     "type": "array",
@@ -1809,17 +1828,14 @@ const docTemplate = `{
                     }
                 },
                 "user_id": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
-        "entity.UpdateUserRequest": {
+        "entity.UpdateUserRequestSwag": {
             "type": "object",
             "properties": {
                 "bio": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 },
                 "name": {

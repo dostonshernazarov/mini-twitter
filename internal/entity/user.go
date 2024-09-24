@@ -46,6 +46,12 @@ type CreateUserResponse struct {
 	ProfilePicture *string `json:"profile_picture"`
 }
 
+type UpdateUserRequestSwag struct {
+	Name     string  `json:"name"`
+	Username string  `json:"username"`
+	Bio      *string `json:"bio"`
+}
+
 type UpdateUserRequest struct {
 	ID       string  `json:"id"`
 	Name     string  `json:"name"`

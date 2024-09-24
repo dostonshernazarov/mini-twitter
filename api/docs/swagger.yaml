@@ -8,25 +8,6 @@ definitions:
       user_id:
         type: string
     type: object
-  entity.CreateTweetRequest:
-    properties:
-      content:
-        type: string
-      created_at:
-        type: string
-      files:
-        items:
-          type: string
-        type: array
-      id:
-        type: string
-      parent_tweet_id:
-        type: integer
-      updated_at:
-        type: string
-      user_id:
-        type: integer
-    type: object
   entity.CreateTweetResponse:
     properties:
       content:
@@ -36,7 +17,7 @@ definitions:
       id:
         type: string
       parent_tweet_id:
-        type: integer
+        type: string
       updated_at:
         type: string
       urls:
@@ -150,6 +131,17 @@ definitions:
       username:
         type: string
     type: object
+  entity.TweetRequest:
+    properties:
+      content:
+        type: string
+      files:
+        items:
+          type: string
+        type: array
+      parent_tweet_id:
+        type: string
+    type: object
   entity.UpdateTweetRequest:
     properties:
       content:
@@ -162,21 +154,19 @@ definitions:
       content:
         type: string
       id:
-        type: integer
+        type: string
       parent_tweet_id:
-        type: integer
+        type: string
       urls:
         items:
           type: string
         type: array
       user_id:
-        type: integer
+        type: string
     type: object
-  entity.UpdateUserRequest:
+  entity.UpdateUserRequestSwag:
     properties:
       bio:
-        type: string
-      id:
         type: string
       name:
         type: string
@@ -436,16 +426,10 @@ paths:
       summary: Verify Forgot Password
       tags:
       - auth
-  /v1/followers/{id}:
+  /v1/followers:
     get:
       consumes:
       - application/json
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: integer
       produces:
       - application/json
       responses:
@@ -478,16 +462,10 @@ paths:
       summary: User Followers
       tags:
       - follow
-  /v1/followings/{id}:
+  /v1/followings:
     get:
       consumes:
       - application/json
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: integer
       produces:
       - application/json
       responses:
@@ -700,7 +678,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/entity.CreateTweetRequest'
+          $ref: '#/definitions/entity.TweetRequest'
       produces:
       - application/json
       responses:
@@ -906,12 +884,6 @@ paths:
       consumes:
       - application/json
       description: this api for getting tweet list of user
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -1041,7 +1013,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/entity.UpdateUserRequest'
+          $ref: '#/definitions/entity.UpdateUserRequestSwag'
       produces:
       - application/json
       responses:
@@ -1161,6 +1133,43 @@ paths:
       security:
       - BearerAuth: []
       summary: List User
+      tags:
+      - user
+  /v1/users/profile:
+    get:
+      consumes:
+      - application/json
+      description: this api for getting a user data by access token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.GetUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - BearerAuth: []
+      summary: Get User profile
       tags:
       - user
   /v1/users/upload-photo:

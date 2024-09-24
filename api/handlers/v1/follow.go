@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -61,7 +60,6 @@ func (h *HandlerV1) FollowUnfollow(c *gin.Context) {
 	}
 
 	request.UserID = cast.ToString(claims["sub"])
-	fmt.Println(request.UserID)
 
 	status, err := h.Follow.Follow(ctx, request)
 	if err != nil {
@@ -91,14 +89,13 @@ func (h *HandlerV1) FollowUnfollow(c *gin.Context) {
 // @Tags 			follow
 // @Accept			json
 // @Produce 		json
-// @Param 			id path int true "User ID"
 // @Success 		200 {object} entity.ListUser
 // @Failure 		400 {object} entity.Error
 // @Failure 		401 {object} entity.Error
 // @Failure 		403 {object} entity.Error
 // @Failure 		404 {object} entity.Error
 // @Failure 		500 {object} entity.Error
-// @Router 			/v1/followings/{id} [GET]
+// @Router 			/v1/followings [GET]
 func (h *HandlerV1) Followings(c *gin.Context) {
 	duration, err := time.ParseDuration(h.Config.Context.TimeOut)
 	if err != nil {
@@ -112,9 +109,18 @@ func (h *HandlerV1) Followings(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), duration)
 	defer cancel()
 
-	userID := c.Param("id")
+	claims, err := utils.GetClaimsFromToken(c.Request, h.Config)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
+	}
 
-	followings, err := h.Follow.GetFollowings(ctx, userID)
+	id := cast.ToString(claims["sub"])
+
+	followings, err := h.Follow.GetFollowings(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			c.JSON(http.StatusNotFound, entity.Error{
@@ -140,14 +146,13 @@ func (h *HandlerV1) Followings(c *gin.Context) {
 // @Tags 			follow
 // @Accept			json
 // @Produce 		json
-// @Param 			id path int true "User ID"
 // @Success 		200 {object} entity.ListUser
 // @Failure 		400 {object} entity.Error
 // @Failure 		401 {object} entity.Error
 // @Failure 		403 {object} entity.Error
 // @Failure 		404 {object} entity.Error
 // @Failure 		500 {object} entity.Error
-// @Router 			/v1/followers/{id} [GET]
+// @Router 			/v1/followers [GET]
 func (h *HandlerV1) Followers(c *gin.Context) {
 	duration, err := time.ParseDuration(h.Config.Context.TimeOut)
 	if err != nil {
@@ -161,9 +166,18 @@ func (h *HandlerV1) Followers(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), duration)
 	defer cancel()
 
-	userID := c.Param("id")
+	claims, err := utils.GetClaimsFromToken(c.Request, h.Config)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
+	}
 
-	followers, err := h.Follow.GetFollowers(ctx, userID)
+	id := cast.ToString(claims["sub"])
+
+	followers, err := h.Follow.GetFollowers(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			c.JSON(http.StatusNotFound, entity.Error{

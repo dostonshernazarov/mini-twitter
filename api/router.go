@@ -84,6 +84,7 @@ func NewRoute(option RouteOption) *gin.Engine {
 		api.DELETE("/users/:id", HandlerV1.DeleteUser)
 		api.GET("/users", HandlerV1.GetUser)
 		api.GET("/users/list", HandlerV1.ListUsers)
+		api.GET("/users/profile", HandlerV1.GetUserProfile)
 		api.POST("/users/upload-photo", HandlerV1.UploadProfilePhoto)
 
 		api.POST("/tweets/upload", HandlerV1.UploadTweetFiles)
@@ -98,8 +99,8 @@ func NewRoute(option RouteOption) *gin.Engine {
 		api.POST("/likes", HandlerV1.LikeTweet)
 
 		api.POST("/follows", HandlerV1.FollowUnfollow)
-		api.GET("/followings/:id", HandlerV1.Followings)
-		api.GET("/followers/:id", HandlerV1.Followers)
+		api.GET("/followings", HandlerV1.Followings)
+		api.GET("/followers", HandlerV1.Followers)
 
 	}
 

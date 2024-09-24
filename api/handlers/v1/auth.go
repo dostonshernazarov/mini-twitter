@@ -176,6 +176,7 @@ func (h *HandlerV1) VerifySignUp(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, entity.Error{
 			Message: entity.IncorrectData,
 		})
+
 		log.Println(err.Error())
 		return
 	}
@@ -214,17 +215,16 @@ func (h *HandlerV1) VerifySignUp(c *gin.Context) {
 		return
 	}
 
-	user, err := h.User.Create(ctx, entity.CreateUserRequest{
-		ID:       uuid.NewString(),
-		Name:     data.Name,
-		Username: data.Username,
-		Email:    data.Email,
-		Password: data.Password,
-		Role:     entity.RoleUser,
-	})
+	userId := uuid.NewString()
 
+	h.JwtHandler = tokens.JwtHandler{
+		Sub:       userId,
+		Role:      entity.RoleUser,
+		SigninKey: h.Config.SigningKey,
+	}
+
+	access, refresh, err := h.JwtHandler.GenerateJwt()
 	if err != nil {
-		println("error")
 		c.JSON(http.StatusInternalServerError, entity.Error{
 			Message: entity.ServerError,
 		})
@@ -232,14 +232,18 @@ func (h *HandlerV1) VerifySignUp(c *gin.Context) {
 		return
 	}
 
-	jwtHandler := tokens.JwtHandler{
-		Sub:       user.ID,
-		Role:      user.Role,
-		SigninKey: h.Config.SigningKey,
-	}
+	user, err := h.User.Create(ctx, entity.CreateUserRequest{
+		ID:       userId,
+		Name:     data.Name,
+		Username: data.Username,
+		Email:    data.Email,
+		Password: data.Password,
+		Role:     entity.RoleUser,
+		Refresh:  refresh,
+	})
 
-	access, refresh, err := jwtHandler.GenerateJwt()
 	if err != nil {
+		println("error")
 		c.JSON(http.StatusInternalServerError, entity.Error{
 			Message: entity.ServerError,
 		})

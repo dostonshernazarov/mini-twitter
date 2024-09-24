@@ -12,9 +12,11 @@ import (
 
 	"github.com/dostonshernazarov/mini-twitter/internal/entity"
 	"github.com/dostonshernazarov/mini-twitter/internal/pkg/etc"
+	tokens "github.com/dostonshernazarov/mini-twitter/internal/pkg/token"
 	"github.com/dostonshernazarov/mini-twitter/internal/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/spf13/cast"
 )
 
 // CreateUser
@@ -94,6 +96,14 @@ func (h *HandlerV1) CreateUser(c *gin.Context) {
 		return
 	}
 
+	userID := uuid.NewString()
+
+	h.JwtHandler = tokens.JwtHandler{
+		Sub:       userID,
+		Role:      entity.RoleUser,
+		SigninKey: h.Config.SigningKey,
+	}
+
 	access, refresh, err := h.JwtHandler.GenerateJwt()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, entity.Error{
@@ -104,12 +114,12 @@ func (h *HandlerV1) CreateUser(c *gin.Context) {
 	}
 
 	createdUser, err := h.User.Create(ctx, entity.CreateUserRequest{
-		ID:       uuid.NewString(),
+		ID:       userID,
 		Name:     request.Name,
 		Username: request.Username,
 		Email:    request.Email,
 		Password: hashed,
-		Role:     "user",
+		Role:     entity.RoleUser,
 		Refresh:  refresh,
 	})
 	if err != nil {
@@ -123,7 +133,7 @@ func (h *HandlerV1) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, entity.UserResponse{
 		ID:       createdUser.ID,
 		Name:     createdUser.Name,
-		Username: *&createdUser.Username,
+		Username: createdUser.Username,
 		Email:    createdUser.Email,
 		Role:     createdUser.Role,
 		Access:   access,
@@ -137,7 +147,7 @@ func (h *HandlerV1) CreateUser(c *gin.Context) {
 // @Tags 			user
 // @Accept 			json
 // @Produce 		json
-// @Param 			data body entity.UpdateUserRequest true "Update User Model"
+// @Param 			data body entity.UpdateUserRequestSwag true "Update User Model"
 // @Success 		201 {object} entity.ResponseWithStatus
 // @Failure 		400 {object} entity.Error
 // @Failure 		401 {object} entity.Error
@@ -158,7 +168,7 @@ func (h *HandlerV1) UpdateUser(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), duration)
 	defer cancel()
 
-	var request entity.UpdateUserRequest
+	var request entity.UpdateUserRequestSwag
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, entity.Error{
@@ -168,8 +178,19 @@ func (h *HandlerV1) UpdateUser(c *gin.Context) {
 		return
 	}
 
+	claims, err := utils.GetClaimsFromToken(c.Request, h.Config)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
+	}
+
+	id := cast.ToString(claims["sub"])
+
 	user, err := h.User.Get(ctx, map[string]interface{}{
-		"id": request.ID,
+		"id": id,
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -205,7 +226,12 @@ func (h *HandlerV1) UpdateUser(c *gin.Context) {
 		}
 	}
 
-	err = h.User.Update(ctx, request)
+	err = h.User.Update(ctx, entity.UpdateUserRequest{
+		ID:       id,
+		Name:     request.Name,
+		Username: request.Username,
+		Bio:      request.Bio,
+	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, entity.Error{
 			Message: entity.ServerError,
@@ -408,7 +434,16 @@ func (h *HandlerV1) UploadProfilePhoto(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), duration)
 	defer cancel()
 
-	userID := c.PostForm("id")
+	claims, err := utils.GetClaimsFromToken(c.Request, h.Config)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
+	}
+
+	id := cast.ToString(claims["sub"])
 
 	file, err := c.FormFile("avatar")
 	if err != nil {
@@ -429,7 +464,7 @@ func (h *HandlerV1) UploadProfilePhoto(c *gin.Context) {
 		return
 	}
 
-	if err := h.User.UploadImage(ctx, userID, uuidPath); err != nil {
+	if err := h.User.UploadImage(ctx, id, uuidPath); err != nil {
 		c.JSON(http.StatusInternalServerError, entity.Error{
 			Message: entity.ServerError,
 		})
@@ -438,7 +473,7 @@ func (h *HandlerV1) UploadProfilePhoto(c *gin.Context) {
 	}
 
 	user, err := h.User.Get(ctx, map[string]interface{}{
-		"id": userID,
+		"id": id,
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -454,6 +489,58 @@ func (h *HandlerV1) UploadProfilePhoto(c *gin.Context) {
 			log.Println(err.Error())
 			return
 		}
+	}
+
+	c.JSON(http.StatusOK, user)
+}
+
+// GetUser
+// @Security 		BearerAuth
+// @Summary 		Get User profile
+// @Description 	this api for getting a user data by access token
+// @Tags 			user
+// @Accept 			json
+// @Produce 		json
+// @Success 		200 {object} entity.GetUserResponse
+// @Failure 		400 {object} entity.Error
+// @Failure 		401 {object} entity.Error
+// @Failure 		403 {object} entity.Error
+// @Failure 		404 {object} entity.Error
+// @Failure 		500 {object} entity.Error
+// @Router 			/v1/users/profile [GET]
+func (h *HandlerV1) GetUserProfile(c *gin.Context) {
+	duration, err := time.ParseDuration(h.Config.Context.TimeOut)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	defer cancel()
+
+	claims, err := utils.GetClaimsFromToken(c.Request, h.Config)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
+	}
+
+	id := cast.ToString(claims["sub"])
+
+	user, err := h.User.Get(ctx, map[string]interface{}{
+		"id": id,
+	})
+	if err != nil {
+		c.JSON(http.StatusNotFound, entity.Error{
+			Message: entity.NotFoundData,
+		})
+		log.Println(err.Error())
+		return
 	}
 
 	c.JSON(http.StatusOK, user)
