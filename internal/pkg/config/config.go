@@ -20,6 +20,16 @@ type Config struct {
 		TimeOut string
 	}
 
+	Kafka struct {
+		Brokers string
+		GroupID string
+		Topic   string
+	}
+
+	AWSS3 struct {
+		BucketName string
+		Region     string
+	}
 	GinMode string // debug, test, release
 
 	PostgresHost     string
@@ -71,6 +81,14 @@ func Load() *Config {
 	cfg.PostgresPassword = getEnv("POSTGRES_PASSWORD", "postgres-password")
 	cfg.PostgresDatabase = getEnv("POSTGRES_DATABASE", "postgres_db")
 	cfg.PostgresSSLMode = getEnv("POSTGRES_SSL_MODE", "disable")
+
+	// AWS S3 config
+	cfg.AWSS3.BucketName = getEnv("AWS_BUCKET_NAME", "your_aws_s3_bucket")
+	cfg.AWSS3.Region = getEnv("AWS_REGION", "your_region")
+
+	// kafka configuration
+	cfg.Kafka.Brokers = getEnv("KAFKA_BROKER", "kafka_broker")
+	cfg.Kafka.Topic = getEnv("KAFKA_TOPIC", "kafka_topic_name")
 
 	// redis configuration
 	cfg.RedisHost = getEnv("REDIS_HOST", "redis_host")

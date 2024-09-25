@@ -1462,7 +1462,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/entity.GetUserResponse"
+                            "type": "string"
                         }
                     },
                     "400": {

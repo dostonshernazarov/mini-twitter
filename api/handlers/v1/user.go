@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"path"
 	"time"
 
 	"github.com/dostonshernazarov/mini-twitter/internal/entity"
+	awss3 "github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/awsS3"
 	"github.com/dostonshernazarov/mini-twitter/internal/pkg/etc"
 	tokens "github.com/dostonshernazarov/mini-twitter/internal/pkg/token"
 	"github.com/dostonshernazarov/mini-twitter/internal/pkg/utils"
@@ -414,7 +414,7 @@ func (h *HandlerV1) ListUsers(c *gin.Context) {
 // @Produce 		json
 // @Param 			id formData int true "User ID"
 // @Param 			avatar formData file true "User Profile Photo"
-// @Success 		201 {object} entity.GetUserResponse
+// @Success 		201 {object} string
 // @Failure 		400 {object} entity.Error
 // @Failure 		401 {object} entity.Error
 // @Failure 		403 {object} entity.Error
@@ -452,19 +452,11 @@ func (h *HandlerV1) UploadProfilePhoto(c *gin.Context) {
 		})
 		log.Println(err.Error())
 		return
+
 	}
 
-	uuidPath := uuid.NewString() + path.Ext(file.Filename)
-
-	if err := c.SaveUploadedFile(file, fmt.Sprintf("./media/users/%s", uuidPath)); err != nil {
-		c.JSON(http.StatusBadRequest, entity.Error{
-			Message: entity.ServerError,
-		})
-		log.Println(err.Error())
-		return
-	}
-
-	if err := h.User.UploadImage(ctx, id, uuidPath); err != nil {
+	src, err := file.Open()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, entity.Error{
 			Message: entity.ServerError,
 		})
@@ -472,26 +464,36 @@ func (h *HandlerV1) UploadProfilePhoto(c *gin.Context) {
 		return
 	}
 
-	user, err := h.User.Get(ctx, map[string]interface{}{
-		"id": id,
-	})
+	defer src.Close()
+
+	url, uniqueFile, err := awss3.UploadFileToS3(h.Config, src, file.Filename)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			c.JSON(http.StatusNotFound, entity.Error{
-				Message: entity.NotFoundData,
-			})
-			log.Println(err.Error())
-			return
-		} else {
-			c.JSON(http.StatusInternalServerError, entity.Error{
-				Message: entity.ServerError,
-			})
-			log.Println(err.Error())
-			return
-		}
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	if err := c.SaveUploadedFile(file, fmt.Sprintf("./media/users/%s", uniqueFile)); err != nil {
+		c.JSON(http.StatusBadRequest, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
+	}
+
+	if err := h.User.UploadImage(ctx, id, url); err != nil {
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": url,
+	})
 }
 
 // GetUser

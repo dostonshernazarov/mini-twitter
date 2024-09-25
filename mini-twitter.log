@@ -219,3 +219,38 @@ main.main.func1
 2024-09-24T21:10:31.306+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
 main.main.func1
 	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-25T16:17:59.007+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-25T16:17:59.008+0500	ERROR	app/main.go:30	app run	{"error": "unexpected RoleManager type: *defaultrolemanager.RoleManagerImpl"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-25T16:18:39.710+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-25T16:18:42.303+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-25T16:18:42.304+0500	ERROR	app/main.go:30	app run	{"error": "unexpected RoleManager type: *defaultrolemanager.RoleManagerImpl"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-25T16:19:37.176+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-25T16:19:55.604+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-25T16:19:55.607+0500	ERROR	app/main.go:30	app run	{"error": "unexpected RoleManager type: *defaultrolemanager.RoleManagerImpl"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-25T16:20:02.896+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-25T16:20:16.755+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-25T16:20:16.757+0500	ERROR	app/main.go:30	app run	{"error": "unexpected RoleManager type: *defaultrolemanager.RoleManagerImpl"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-25T16:20:45.035+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-25T16:24:04.540+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-25T16:24:04.542+0500	ERROR	app/main.go:30	app run	{"error": "unexpected RoleManager type: *defaultrolemanager.RoleManagerImpl"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-25T16:24:10.164+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-25T16:34:09.209+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-25T16:35:08.145+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-25T16:35:08.147+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30
+2024-09-25T16:35:10.810+0500	INFO	app/main.go:27	Listen: 	{"address": "localhost:7777"}
+2024-09-25T16:39:03.136+0500	INFO	app/main.go:39	api gateway service stops
+2024-09-25T16:39:03.138+0500	ERROR	app/main.go:30	app run	{"error": "http: Server closed"}
+main.main.func1
+	/home/doston/project/go/src/github/mini-twitter/cmd/app/main.go:30

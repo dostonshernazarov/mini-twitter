@@ -1,12 +1,15 @@
 package api
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/casbin/casbin/v2"
 	_ "github.com/dostonshernazarov/mini-twitter/api/docs"
 	v1 "github.com/dostonshernazarov/mini-twitter/api/handlers/v1"
 	"github.com/dostonshernazarov/mini-twitter/api/middleware"
+
+	"github.com/dostonshernazarov/mini-twitter/api/websocket"
 	"github.com/dostonshernazarov/mini-twitter/internal/pkg/config"
 	"github.com/dostonshernazarov/mini-twitter/internal/usecase"
 	"github.com/gin-contrib/cors"
@@ -106,6 +109,9 @@ func NewRoute(option RouteOption) *gin.Engine {
 
 	url := ginSwagger.URL("swagger/doc.json")
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+
+	// Websocker router
+	http.HandleFunc("/ws", websocket.WsHandler)
 
 	return router
 }

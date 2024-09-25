@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/dostonshernazarov/mini-twitter/internal/entity"
+	"github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/kafka"
 	"github.com/dostonshernazarov/mini-twitter/internal/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
@@ -76,6 +78,16 @@ func (h *HandlerV1) FollowUnfollow(c *gin.Context) {
 			log.Println(err.Error())
 			return
 		}
+	}
+
+	msgKafka := fmt.Sprintf("User %s followed User %s", request.UserID, request.FollowingID)
+	err = kafka.SendMessage(h.Config.Kafka.Topic, msgKafka)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, entity.Error{
+			Message: entity.ServerError,
+		})
+		log.Println(err.Error())
+		return
 	}
 
 	c.JSON(http.StatusOK, entity.ResponseWithStatus{

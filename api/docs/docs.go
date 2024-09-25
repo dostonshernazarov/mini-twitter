@@ -1471,7 +1471,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/entity.GetUserResponse"
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -1928,6 +1928,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "API for Mini Twitter",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {

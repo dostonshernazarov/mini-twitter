@@ -36,7 +36,6 @@ CREATE TABLE IF NOT EXISTS files (
 );
 
 CREATE TABLE IF NOT EXISTS follows (
-    id UUID PRIMARY KEY,
     user_id UUID NOT NULL,
     following_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -57,5 +56,6 @@ CREATE TABLE IF NOT EXISTS likes (
     FOREIGN KEY (tweet_id) REFERENCES tweets(id)
 );
 
+
 INSERT INTO users (id, name, username, email, password, role) VALUES
-('1a8d3b24-3c29-4d21-a7d6-fcdd5a92c56a', 'Jhon Doe', 'jhon_doe', 'adminemail@gmail.com', '$2a$14$0JDtvVEXdegqfz/Q.ThLm.Hg4kes50BRkBPBI48DbDKiI0Z9ifE9O', 'admin'),
+('1a8d3b24-3c29-4d21-a7d6-fcdd5a92c56a', 'Jhon Doe', 'jhon_doe', 'adminemail@gmail.com', '$2a$14$0JDtvVEXdegqfz/Q.ThLm.Hg4kes50BRkBPBI48DbDKiI0Z9ifE9O', 'admin');

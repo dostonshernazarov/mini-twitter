@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/casbin/casbin/v2"
-	defaultrolemanager "github.com/casbin/casbin/v2/rbac/default-role-manager"
-	"github.com/casbin/casbin/v2/util"
 	"github.com/dostonshernazarov/mini-twitter/api"
+	awss3 "github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/awsS3"
+	"github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/kafka"
 	"github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/postgres"
 	cache "github.com/dostonshernazarov/mini-twitter/internal/infrastructure/repository/redis"
 	"github.com/dostonshernazarov/mini-twitter/internal/pkg/config"
@@ -47,6 +47,15 @@ func NewApp(cfg config.Config) (*App, error) {
 		return nil, err
 	}
 
+	// kafka init
+	err = kafka.InitKafkaProducer([]string{cfg.Kafka.Brokers})
+	if err != nil {
+		log.Fatalf("failed to init : %v", err)
+	}
+
+	// Start Kafka Consumer in a goroutine
+	go kafka.StartConsumer([]string{cfg.Kafka.Brokers}, cfg.Kafka.Topic)
+
 	redisClient, err := cache.NewRedisStorage(&cfg)
 	if err != nil {
 		log.Fatalf("failed to create redis storage: %v", err)
@@ -64,6 +73,12 @@ func NewApp(cfg config.Config) (*App, error) {
 	enforcer, err := casbin.NewEnforcer("./internal/pkg/config/auth.conf", "./internal/pkg/config/auth.csv")
 	if err != nil {
 		return nil, err
+	}
+
+	// aws s3 init
+	err = awss3.InitS3(&cfg)
+	if err != nil {
+		log.Fatalf("error while initializing aws s3: %v", err)
 	}
 
 	// Storage init
@@ -112,17 +127,17 @@ func (a *App) Run() error {
 		Like:           a.Like,
 	})
 
-	err = a.Enforcer.LoadPolicy()
-	if err != nil {
-		return err
-	}
-	if roleManager, ok := a.Enforcer.GetRoleManager().(*defaultrolemanager.RoleManager); ok {
-		// Use the roleManager as expected
-		roleManager.AddMatchingFunc("keyMatch", util.KeyMatch)
-		roleManager.AddMatchingFunc("keyMatch3", util.KeyMatch3)
-	} else {
-		return fmt.Errorf("unexpected RoleManager type: %T", a.Enforcer.GetRoleManager())
-	}
+	// err = a.Enforcer.LoadPolicy()
+	// if err != nil {
+	// 	return err
+	// }
+	// if roleManager, ok := a.Enforcer.GetRoleManager().(*defaultrolemanager.RoleManager); ok {
+	// 	// Use the roleManager as expected
+	// 	roleManager.AddMatchingFunc("keyMatch", util.KeyMatch)
+	// 	roleManager.AddMatchingFunc("keyMatch3", util.KeyMatch3)
+	// } else {
+	// 	return fmt.Errorf("unexpected RoleManager type: %T", a.Enforcer.GetRoleManager())
+	// }
 
 	// server init
 	a.server, err = api.NewServer(a.Config, handler)
