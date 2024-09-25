@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS users (
     deleted_at TIMESTAMP
 );
 
+CREATE INDEX idx_users_username ON users (username);
+CREATE INDEX idx_users_name ON users (nam);
+
 CREATE TABLE IF NOT EXISTS tweets (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL,
@@ -25,6 +28,7 @@ CREATE TABLE IF NOT EXISTS tweets (
     FOREIGN KEY (parent_tweet_id) REFERENCES tweets(id)
 );
 
+
 CREATE TABLE IF NOT EXISTS files (
     id UUID PRIMARY KEY,
     tweet_id UUID NOT NULL,
@@ -35,6 +39,7 @@ CREATE TABLE IF NOT EXISTS files (
     FOREIGN KEY (tweet_id) REFERENCES tweets(id)
 );
 
+
 CREATE TABLE IF NOT EXISTS follows (
     user_id UUID NOT NULL,
     following_id UUID NOT NULL,
@@ -44,6 +49,7 @@ CREATE TABLE IF NOT EXISTS follows (
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (following_id) REFERENCES users(id)
 );
+
 
 CREATE TABLE IF NOT EXISTS likes (
     id UUID PRIMARY KEY,
