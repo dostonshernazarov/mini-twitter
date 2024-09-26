@@ -19,6 +19,5 @@ COPY --from=builder /app/main .
 COPY internal/pkg/config/auth.conf internal/pkg/config/auth.conf
 COPY internal/pkg/config/auth.csv internal/pkg/config/auth.csv
 
-COPY .env .
 
 CMD ["/app/main"]
