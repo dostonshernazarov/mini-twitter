@@ -37,7 +37,14 @@ func TestUser(t *testing.T) {
 		Role:     "user",
 	}
 
-	createdUser, err := repo.Create(ctx, *createdUserModel)
+	createdUser, err := repo.Create(ctx, entity.CreateUserRequest{
+		ID:       defaultUserID,
+		Name:     "James Bond",
+		Username: "username_test",
+		Email:    "jamesbond@gmail.com",
+		Password: "12345678",
+		Role:     "user",
+	})
 	assert.NoError(t, err)
 	assert.Equal(t, createdUserModel.ID, createdUser.ID)
 	assert.Equal(t, createdUserModel.Name, createdUser.Name)
