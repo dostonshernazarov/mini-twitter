@@ -31,6 +31,6 @@ jobs:
             cd github.com/mini-twitter/
             docker compose down || true
             git pull origin main
-            docker compose up -- build -d
+            docker compose up --build -d
           script_stop: true
           timeout: 300s
