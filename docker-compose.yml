@@ -84,8 +84,8 @@ services:
       - ./internal/pkg/config/auth.csv:/app/internal/pkg/config/auth.csv
     ports:
       - "7777:7777"
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     depends_on:
       postgres-db:
         condition: service_healthy
