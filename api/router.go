@@ -49,6 +49,7 @@ func NewRoute(option RouteOption) *gin.Engine {
 
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	router.Use(middleware.RateLimitMiddleware())
 	router.Use(middleware.CheckCasbinPermission(option.Enforcer, *option.Config))
 
 	corsConfig := cors.DefaultConfig()

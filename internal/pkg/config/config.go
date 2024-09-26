@@ -27,8 +27,10 @@ type Config struct {
 	}
 
 	AWSS3 struct {
-		BucketName string
-		Region     string
+		AWSAccessKeyID     string
+		AWSSecretAccessKey string
+		BucketName         string
+		Region             string
 	}
 	GinMode string // debug, test, release
 
@@ -83,6 +85,8 @@ func Load() *Config {
 	cfg.PostgresSSLMode = getEnv("POSTGRES_SSL_MODE", "disable")
 
 	// AWS S3 config
+	cfg.AWSS3.AWSAccessKeyID = getEnv("AWS_ACCESS_KEY_ID", "your_access_key_id")
+	cfg.AWSS3.AWSSecretAccessKey = getEnv("AWS_SECRET_ACCESS_KEY", "your_secret_access_key")
 	cfg.AWSS3.BucketName = getEnv("AWS_BUCKET_NAME", "your_aws_s3_bucket")
 	cfg.AWSS3.Region = getEnv("AWS_REGION", "your_region")
 

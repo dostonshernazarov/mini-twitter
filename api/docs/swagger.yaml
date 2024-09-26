@@ -1178,11 +1178,6 @@ paths:
       - application/json
       description: this api for uploading user profile
       parameters:
-      - description: User ID
-        in: formData
-        name: id
-        required: true
-        type: integer
       - description: User Profile Photo
         in: formData
         name: avatar
@@ -1217,7 +1212,7 @@ paths:
             $ref: '#/definitions/entity.Error'
       security:
       - BearerAuth: []
-      summary: Upload User Profile
+      summary: Upload User Profile photo
       tags:
       - user
 securityDefinitions:

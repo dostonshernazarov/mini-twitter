@@ -95,17 +95,6 @@ services:
         condition: service_started
     restart: unless-stopped
 
-  k6:
-    image: loadimpact/k6:latest
-    volumes:
-      - ./k6:/k6
-    command:
-      run /loadTest/get.js
-      run /loadTest/post.js
-    depends_on:
-      - app
-    networks:
-      - twitter_net
 
 networks:
   twitter_net:

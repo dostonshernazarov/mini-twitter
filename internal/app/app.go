@@ -127,18 +127,6 @@ func (a *App) Run() error {
 		Like:           a.Like,
 	})
 
-	// err = a.Enforcer.LoadPolicy()
-	// if err != nil {
-	// 	return err
-	// }
-	// if roleManager, ok := a.Enforcer.GetRoleManager().(*defaultrolemanager.RoleManager); ok {
-	// 	// Use the roleManager as expected
-	// 	roleManager.AddMatchingFunc("keyMatch", util.KeyMatch)
-	// 	roleManager.AddMatchingFunc("keyMatch3", util.KeyMatch3)
-	// } else {
-	// 	return fmt.Errorf("unexpected RoleManager type: %T", a.Enforcer.GetRoleManager())
-	// }
-
 	// server init
 	a.server, err = api.NewServer(a.Config, handler)
 	if err != nil {

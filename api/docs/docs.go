@@ -1450,15 +1450,8 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Upload User Profile",
+                "summary": "Upload User Profile photo",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "formData",
-                        "required": true
-                    },
                     {
                         "type": "file",
                         "description": "User Profile Photo",

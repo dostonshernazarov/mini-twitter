@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE INDEX idx_users_username ON users (username);
-CREATE INDEX idx_users_name ON users (nam);
+CREATE INDEX idx_users_name ON users (name);
 
 CREATE TABLE IF NOT EXISTS tweets (
     id UUID PRIMARY KEY,

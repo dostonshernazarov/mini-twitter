@@ -8,6 +8,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/dostonshernazarov/mini-twitter/api/middleware"
 	"github.com/dostonshernazarov/mini-twitter/internal/app"
 	configpkg "github.com/dostonshernazarov/mini-twitter/internal/pkg/config"
 )
@@ -21,6 +22,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// remove old entries from the visitors map
+	go middleware.CleanupVisitors()
 
 	// run application
 	go func() {

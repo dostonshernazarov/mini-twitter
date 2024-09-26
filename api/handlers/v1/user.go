@@ -407,12 +407,11 @@ func (h *HandlerV1) ListUsers(c *gin.Context) {
 
 // UploadProfilePhoto
 // @Security 		BearerAuth
-// @Summary 		Upload User Profile
+// @Summary 		Upload User Profile photo
 // @Description 	this api for uploading user profile
 // @Tags 			user
 // @Accept 			json
 // @Produce 		json
-// @Param 			id formData int true "User ID"
 // @Param 			avatar formData file true "User Profile Photo"
 // @Success 		201 {object} string
 // @Failure 		400 {object} entity.Error
