@@ -6,9 +6,6 @@ Mini-Twitter is a social media platform built in Go using the Gin framework. It 
 
 1. **Email Verification**: Utilizes Redis for storing verification codes sent to user emails during registration.
 2. **PostgreSQL Database**: Main database for storing user data, tweets, and relationships. Includes indexing for faster data retrieval.
-   ```sql
-   CREATE INDEX idx_users_username ON users (username);
-   CREATE INDEX idx_users_name ON users (name);
 3. **AWS S3 Integration**: Used for saving user-uploaded photos and files.
 4. **Real-time Notifications**: Implemented using Apache Kafka with WebSocket support.
 5. **Load Testing**: Conducted using k6, with load test scripts for GET and POST requests.
